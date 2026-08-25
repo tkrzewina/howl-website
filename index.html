@@ -1345,15 +1345,33 @@ h1,h2,h3{ font-family:var(--serif); font-weight:400; line-height:1.04; letter-sp
   (function(){
     var t = document.getElementById('threshold');
     if(!t) return;
+    // No observer support: never leave the roster behind a closed curtain.
     if(!('IntersectionObserver' in window)){ t.classList.add('is-open'); return; }
+
+    // On mobile the curtain is reversible — it closes again as the section
+    // leaves view and re-opens on the way back, so the effect is visible
+    // however you scroll. On desktop it opens once and stays open.
+    var mq = window.matchMedia('(max-width:900px), (pointer:coarse)');
+
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(e){
-        if(e.isIntersecting){ t.classList.add('is-open'); io.unobserve(e.target); }
+        if(mq.matches){
+          t.classList.toggle('is-open', e.isIntersecting);
+        } else if(e.isIntersecting){
+          t.classList.add('is-open');
+          io.unobserve(e.target);
+        }
       });
-    }, { threshold:.35 });
+    }, { threshold:.32 });
     io.observe(t);
-    // safety net: never leave the roster behind a closed curtain
-    setTimeout(function(){ t.classList.add('is-open'); }, 3000);
+
+    // Safety net, desktop only: the reversible path must stay free to close.
+    setTimeout(function(){ if(!mq.matches) t.classList.add('is-open'); }, 3000);
+
+    // If the viewport crosses the breakpoint, don't strand it shut.
+    var onChange = function(){ if(!mq.matches) t.classList.add('is-open'); };
+    if(mq.addEventListener) mq.addEventListener('change', onChange);
+    else if(mq.addListener) mq.addListener(onChange);
   })();
 
   // The Seal: break to reveal how enquiries are handled
