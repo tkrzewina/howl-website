@@ -74,26 +74,20 @@ been removed.
 
 ## Deploys
 
-Pushes to `main` build automatically (deploy key + `netlify.toml` + a GitHub
-webhook to `https://api.netlify.com/hooks/github`).
+Pushes to `main` build automatically (`netlify.toml` + a GitHub webhook to
+`https://api.netlify.com/hooks/github`).
 
-⚠️ **Commits must be authored by a verified member of the Netlify account.**
-On this plan Netlify refuses to build a push to a private repo from an
-unrecognised Git contributor:
+This repo is **public**, which is deliberate: on the current Netlify plan a
+push to a *private* repo is refused at build time with
 
 ```
 Build blocked: Unrecognized Git contributor.
 This plan allows only verified account members to push to private repos.
 ```
 
-Commits authored under an address that is not a verified member of the
-Netlify account will push fine, but the build will fail. Set the repo-local
-author to the Netlify account owner's address:
+That restriction applies only to private repos, so publishing the repo lifts it
+without a plan upgrade. Builds triggered through the Netlify API, and
+`netlify deploy --prod --dir=.`, bypass the check either way.
 
-```
-git config user.email <netlify-account-email>
-```
-
-(Builds triggered through the Netlify API bypass this check, which is why an
-API-triggered build can succeed where a pushed commit fails. Making the repo
-public also lifts the restriction, since it only applies to private repos.)
+Commits are authored under a GitHub noreply address so that no personal or
+business email is published in the commit history.
