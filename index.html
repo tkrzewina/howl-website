@@ -2,6 +2,8 @@
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The Door: decide before a single pixel of the House is painted. -->
+<script>(function(){var d=document.documentElement;try{if(sessionStorage.getItem('howl.door')==='1'){d.className+=' gate-cleared';return;}}catch(e){}d.className+=' gated';})();</script>
 <title>House of Worship London — Devotion · Surrender · Chastity</title>
 <style>/* ============================================================
    HOUSE OF WORSHIP LONDON — v2
@@ -1026,10 +1028,287 @@ h1,h2,h3{ font-family:var(--serif); font-weight:400; line-height:1.04; letter-sp
   .btn{ padding:.95em 1.5em; font-size:.66rem; letter-spacing:.2em; }
   .house__seal{ width:92px; height:92px; }
 }
+
+/* ============================================================
+   THE DOOR — the 18+ gate (fitting VIII)
+   A knock, a grille that opens, and a bolt the visitor draws
+   themselves. The House never draws it for you.
+   ============================================================ */
+
+html.gated{ overflow:hidden; }
+html.gate-cleared .gate{ display:none; }
+
+.gate{
+  display:none;                     /* no JS, no door — the House stays open */
+  position:fixed; inset:0; z-index:9000;
+  align-items:center; justify-content:center;
+  padding:clamp(22px,5vw,56px) clamp(18px,5vw,48px);
+  overflow-y:auto; overscroll-behavior:contain;
+  background:var(--ink);
+  transition:background 1.2s ease;
+}
+html.gated .gate{ display:flex; }
+.gate.is-open{ background:transparent; pointer-events:none; }
+
+/* ---- the two leaves ---- */
+.gate__leaf{
+  position:fixed; top:0; bottom:0; width:50.6%; z-index:0; pointer-events:none;
+  background-image:
+    repeating-linear-gradient(45deg,transparent 0 84px,rgba(201,162,39,.07) 84px 85px),
+    repeating-linear-gradient(-45deg,transparent 0 84px,rgba(201,162,39,.07) 84px 85px),
+    repeating-linear-gradient(45deg,transparent 0 84px,rgba(0,0,0,.55) 85px 88px),
+    repeating-linear-gradient(-45deg,transparent 0 84px,rgba(0,0,0,.55) 85px 88px),
+    radial-gradient(circle,rgba(201,162,39,.45) 0 1.5px,transparent 2.1px),
+    radial-gradient(130% 105% at 50% 38%,#5a1724,#340d16 48%,#150609 100%);
+  background-size:auto,auto,auto,auto,118.8px 118.8px,auto;
+  background-position:center;
+  transition:transform 1.55s cubic-bezier(.7,0,.2,1);
+}
+.gate__leaf--l{ left:0;  box-shadow:inset 0 0 140px rgba(0,0,0,.7), inset -30px 0 46px -26px rgba(0,0,0,.96); }
+.gate__leaf--r{ right:0; box-shadow:inset 0 0 140px rgba(0,0,0,.7), inset  30px 0 46px -26px rgba(0,0,0,.96); }
+.gate__leaf--r::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:1px;
+  background:linear-gradient(180deg,transparent,rgba(240,216,148,.22) 22%,rgba(240,216,148,.22) 78%,transparent); }
+.gate.is-open .gate__leaf--l{ transform:translateX(-101%); }
+.gate.is-open .gate__leaf--r{ transform:translateX(101%); }
+
+/* candle glow behind the stage */
+.gate__glow{
+  position:fixed; left:50%; top:50%; width:min(130vw,900px); height:min(130vw,900px);
+  transform:translate(-50%,-50%); z-index:1; pointer-events:none; mix-blend-mode:screen;
+  background:radial-gradient(circle,rgba(226,182,96,.16),rgba(201,162,39,.05) 40%,transparent 68%);
+  animation:candleflicker 3.6s ease-in-out infinite;
+  transition:opacity .9s ease;
+}
+.gate.is-open .gate__glow{ opacity:0; }
+
+/* ---- the stage ---- */
+.gate__stage{
+  position:relative; z-index:2; margin:auto; width:100%; max-width:520px;
+  display:flex; flex-direction:column; align-items:center; gap:clamp(14px,2.8vw,22px);
+  text-align:center;
+  transition:opacity .7s ease, transform 1.1s cubic-bezier(.16,1,.3,1);
+}
+.gate.is-open .gate__stage{ opacity:0; transform:scale(1.06); }
+
+.gate__mark{ font-family:var(--serif); font-weight:300; font-size:1.9rem; letter-spacing:.26em; text-indent:.26em; line-height:1; }
+.gate__sub{ font-family:var(--label); font-size:.56rem; letter-spacing:.44em; text-transform:uppercase; color:var(--bone-faint); margin-top:9px; }
+.gate__title{ font-family:var(--serif); font-weight:300; font-size:clamp(2rem,6.4vw,3rem); line-height:1.04; text-wrap:balance; }
+.gate__lead{ font-size:clamp(.95rem,2.4vw,1.02rem); line-height:1.64; color:var(--bone-dim); max-width:42ch; }
+
+/* ---- the knocker ---- */
+.gate__knocker{ background:none; border:0; padding:6px; cursor:pointer; display:block;
+  width:clamp(94px,24vw,116px); filter:drop-shadow(0 16px 30px rgba(0,0,0,.75)); }
+.gate__knocker svg{ width:100%; height:auto; display:block; }
+.gate__knocker:focus-visible{ outline:1px solid var(--gold); outline-offset:6px; }
+.knock__ring{ transform-origin:60px 36px; }
+.gate.is-knocking .knock__ring{ animation:knockring .62s cubic-bezier(.36,.07,.19,.97); }
+.gate.is-knocking .gate__leaf{ animation:doorshudder .5s ease-out; }
+.gate__ask{ display:grid; grid-template-rows:1fr;
+  transition:grid-template-rows .85s cubic-bezier(.7,0,.2,1), opacity .5s ease; }
+.gate__ask-in{ overflow:hidden; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.gate.is-heard .gate__ask{ grid-template-rows:0fr; opacity:0; pointer-events:none; }
+@keyframes knockring{
+  0%{ transform:rotate(0) }  20%{ transform:rotate(-16deg) }  44%{ transform:rotate(9deg) }
+  68%{ transform:rotate(-5deg) }  86%{ transform:rotate(2deg) }  100%{ transform:rotate(0) }
+}
+@keyframes doorshudder{
+  0%,100%{ transform:translate3d(0,0,0) } 16%{ transform:translate3d(0,-2px,0) }
+  38%{ transform:translate3d(0,1.5px,0) } 64%{ transform:translate3d(0,-1px,0) }
+}
+
+.gate__hint{ font-family:var(--label); font-size:.6rem; letter-spacing:.34em; text-transform:uppercase;
+  color:var(--bone-faint); }
+
+/* ---- the grille ---- */
+.gate__grille{ width:min(400px,100%); }
+.grille__frame{
+  position:relative; height:52px; overflow:hidden;
+  border:1px solid rgba(201,162,39,.38);
+  background:linear-gradient(180deg,#0d0406,#180a0d);
+  box-shadow:inset 0 2px 12px rgba(0,0,0,.9);
+  transition:height .95s cubic-bezier(.7,0,.2,1), box-shadow 1s ease;
+}
+.gate.is-heard .grille__frame{ height:88px; box-shadow:inset 0 2px 12px rgba(0,0,0,.9), 0 0 40px rgba(201,162,39,.2); }
+.grille__inside{ position:absolute; inset:0; opacity:0; transition:opacity 1s ease .15s;
+  background:
+    radial-gradient(70% 120% at 50% 64%,rgba(255,214,140,.5),transparent 62%),
+    radial-gradient(130% 160% at 50% 62%,#a2542a,#4a180f 44%,#140507 100%); }
+.gate.is-heard .grille__inside{ opacity:1; }
+.grille__bars{ position:absolute; inset:0;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.55),transparent 34%,transparent 62%,rgba(0,0,0,.6)),
+    repeating-linear-gradient(90deg,
+      transparent 0 22px,
+      rgba(240,216,148,.4) 22px 23px,
+      rgba(8,3,5,.94) 23px 29px,
+      rgba(0,0,0,.5) 29px 30px,
+      transparent 30px 52px); }
+.grille__shutter{
+  position:absolute; top:0; bottom:0; width:50.5%; z-index:2;
+  background-image:
+    repeating-linear-gradient(180deg,transparent 0 5px,rgba(0,0,0,.13) 5px 6px),
+    linear-gradient(180deg,#e6d199,#c9a227 24%,#8a6a22 56%,#b6933a 80%,#4f3c11);
+  transition:transform 1.05s cubic-bezier(.7,0,.2,1);
+}
+.grille__shutter--l{ left:0;  box-shadow:2px 0 8px rgba(0,0,0,.7); }
+.grille__shutter--r{ right:0; box-shadow:-2px 0 8px rgba(0,0,0,.7); }
+.gate.is-heard .grille__shutter--l{ transform:translateX(-100%); }
+.gate.is-heard .grille__shutter--r{ transform:translateX(100%); }
+
+/* ---- what is said through it ---- */
+.gate__heard{ width:100%; display:grid; grid-template-rows:0fr; opacity:0;
+  transition:grid-template-rows .95s cubic-bezier(.7,0,.2,1), opacity .7s ease .3s; }
+.gate.is-heard .gate__heard{ grid-template-rows:1fr; opacity:1; }
+.gate__heard-in{ overflow:hidden; display:flex; flex-direction:column; align-items:center;
+  gap:clamp(16px,3vw,22px); padding-top:clamp(4px,1vw,8px); }
+.gate__spoken{ font-family:var(--serif); font-style:italic; font-size:clamp(1.12rem,3vw,1.3rem);
+  line-height:1.4; color:var(--bone); max-width:30ch; }
+.gate__terms{ font-size:.92rem; line-height:1.62; color:var(--bone-dim); max-width:44ch; }
+
+/* ---- the bolt ---- */
+.bolt{ --knobw:clamp(86px,26%,108px); width:min(400px,100%); touch-action:pan-y;
+  -webkit-user-select:none; user-select:none; }
+.bolt__track{ position:relative; height:62px; border:1px solid rgba(201,162,39,.36);
+  background:linear-gradient(180deg,#1d0b0f,#110608);
+  box-shadow:inset 0 3px 14px rgba(0,0,0,.85); }
+.bolt__keep{ position:absolute; right:0; top:0; bottom:0; width:26px;
+  background:linear-gradient(90deg,rgba(201,162,39,.06),rgba(201,162,39,.20));
+  border-left:1px solid rgba(201,162,39,.34); }
+.bolt__fill{ position:absolute; left:0; top:0; bottom:0; width:var(--p,0%);
+  background:linear-gradient(90deg,rgba(201,162,39,.04),rgba(201,162,39,.17)); }
+.bolt__text{ position:absolute; inset:0 30px 0 calc(var(--knobw) + 16px); display:grid; place-items:center; pointer-events:none;
+  font-family:var(--label); font-size:clamp(.55rem,1.9vw,.63rem); letter-spacing:.28em;
+  text-transform:uppercase; color:var(--bone-faint); }
+.bolt__text--gold{ color:var(--gold-lt); clip-path:inset(0 calc(100% - var(--p,0%)) 0 0); }
+.bolt__knob{
+  position:absolute; left:5px; top:5px; bottom:5px; width:var(--knobw); z-index:3;
+  padding:0; border:1px solid rgba(240,216,148,.5); cursor:grab;
+  background-image:
+    repeating-linear-gradient(90deg,transparent 0 46%,rgba(0,0,0,.22) 46% 47%,transparent 47% 53%,rgba(0,0,0,.22) 53% 54%,transparent 54%),
+    linear-gradient(180deg,#f3e2b0,#c9a227 30%,#8a6a22 62%,#c9a227 84%,#6b5219);
+  box-shadow:0 8px 20px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,247,220,.75);
+  transform:translateX(var(--x,0px));
+  transition:transform .55s cubic-bezier(.16,1,.3,1);
+}
+.bolt__knob{ touch-action:none; }
+.bolt__knob:focus-visible{ outline:1px solid var(--gold-lt); outline-offset:5px; }
+.bolt.is-dragging .bolt__knob{ transition:none; cursor:grabbing; }
+.bolt.is-drawn .bolt__knob{ cursor:default; box-shadow:0 8px 20px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,247,220,.75), 0 0 26px rgba(240,216,148,.5); }
+.bolt.is-drawn .bolt__track{ border-color:rgba(240,216,148,.6); }
+
+.gate__fine{ font-size:.76rem; line-height:1.55; color:var(--bone-faint); max-width:34ch; text-wrap:pretty; }
+.gate__leave{ font-family:var(--label); font-size:.6rem; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--bone-faint); background:none; border:0; padding:8px; cursor:pointer; transition:color .4s ease; }
+.gate__leave:hover{ color:var(--bone-dim); }
+.gate__leave:focus-visible{ outline:1px solid var(--hair); outline-offset:2px; }
+
+@media (max-width:560px){
+  .gate__stage{ max-width:none; }
+  .bolt__text{ letter-spacing:.2em; }
+}
+@media (prefers-reduced-motion:reduce){
+  .gate,.gate__leaf,.gate__stage,.gate__glow,.grille__frame,.grille__shutter,
+  .grille__inside,.gate__heard,.bolt__knob{ transition-duration:.01ms !important; }
+  .gate__glow{ animation:none; }
+  .gate.is-knocking .knock__ring,.gate.is-knocking .gate__leaf{ animation:none; }
+}
+
 </style>
 
 </head>
 <body>
+
+<!-- ====================== THE DOOR — 18+ gate ====================== -->
+<div class="gate" id="gate" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="gateTitle" aria-describedby="gateLead">
+  <span class="gate__leaf gate__leaf--l" aria-hidden="true"></span>
+  <span class="gate__leaf gate__leaf--r" aria-hidden="true"></span>
+  <span class="gate__glow" aria-hidden="true"></span>
+
+  <div class="gate__stage">
+
+    <div>
+      <div class="gate__mark foil">HOW</div>
+      <div class="gate__sub">House of Worship &middot; London W14</div>
+    </div>
+
+    <h1 class="gate__title foil" id="gateTitle">You are at the door.</h1>
+
+    <p class="gate__lead" id="gateLead">Beyond it is a private fetish house in West Kensington. What is written and shown here is adult in nature, and meant for adults only.</p>
+
+    <!-- the grille: shut until you are heard -->
+    <div class="gate__grille">
+      <div class="grille__frame">
+        <span class="grille__inside" aria-hidden="true"><span class="grille__bars"></span></span>
+        <span class="grille__shutter grille__shutter--l" aria-hidden="true"></span>
+        <span class="grille__shutter grille__shutter--r" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <div class="gate__ask">
+     <div class="gate__ask-in">
+    <button class="gate__knocker" id="gateKnock" type="button" aria-label="Knock at the door">
+      <svg viewBox="0 0 120 152" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="gtBrass" x1="0" y1="0" x2=".3" y2="1">
+            <stop offset="0%" stop-color="#f3e2b0"/><stop offset="22%" stop-color="#c9a227"/>
+            <stop offset="54%" stop-color="#8a6a22"/><stop offset="78%" stop-color="#bb983c"/>
+            <stop offset="100%" stop-color="#4f3c11"/>
+          </linearGradient>
+          <linearGradient id="gtBoss" x1=".2" y1="0" x2=".8" y2="1">
+            <stop offset="0%" stop-color="#fbeec4"/><stop offset="38%" stop-color="#d7b243"/>
+            <stop offset="72%" stop-color="#8a6a22"/><stop offset="100%" stop-color="#5c460f"/>
+          </linearGradient>
+        </defs>
+        <!-- backplate -->
+        <path d="M60 6 q20 0 20 22 v96 q0 22 -20 22 q-20 0 -20 -22 v-96 q0 -22 20 -22 Z"
+              fill="url(#gtBrass)" opacity=".36"/>
+        <!-- the ring, hung from the boss -->
+        <g class="knock__ring">
+          <ellipse cx="60" cy="90" rx="33" ry="38" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="13"/>
+          <ellipse cx="60" cy="90" rx="33" ry="38" fill="none" stroke="url(#gtBrass)" stroke-width="10"/>
+          <ellipse cx="60" cy="90" rx="33" ry="38" fill="none" stroke="rgba(255,246,214,.35)" stroke-width="1.2"/>
+        </g>
+        <!-- the boss it hangs from -->
+        <circle cx="60" cy="36" r="16" fill="rgba(0,0,0,.5)"/>
+        <circle cx="60" cy="35" r="15" fill="url(#gtBoss)"/>
+        <circle cx="60" cy="35" r="15" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="1"/>
+        <circle cx="55" cy="30" r="4" fill="rgba(255,250,228,.5)"/>
+        <!-- the strike stud it lands on -->
+        <circle cx="60" cy="139" r="6.5" fill="url(#gtBoss)"/>
+        <circle cx="60" cy="139" r="6.5" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1"/>
+      </svg>
+    </button>
+
+    <p class="gate__hint" id="gateHint">Knock to be heard</p>
+     </div>
+    </div>
+
+    <!-- what is said back through the grille -->
+    <div class="gate__heard" id="gateHeard" inert>
+      <div class="gate__heard-in">
+        <p class="gate__spoken">&ldquo;Good evening. One question, and then the door is yours.&rdquo;</p>
+        <p class="gate__terms">This is a house of consensual adult fetish. Nothing beyond this door is suitable for anyone under 18. The bolt is on your side &mdash; the House will not draw it for you.</p>
+
+        <div class="bolt" id="bolt">
+          <div class="bolt__track" id="boltTrack">
+            <span class="bolt__fill" aria-hidden="true"></span>
+            <span class="bolt__keep" aria-hidden="true"></span>
+            <span class="bolt__text" id="boltText" aria-hidden="true">I am 18 or over &rarr;</span>
+            <span class="bolt__text bolt__text--gold" id="boltTextGold" aria-hidden="true">I am 18 or over &rarr;</span>
+            <button class="bolt__knob" id="boltKnob" type="button" role="slider"
+                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Bolt shut"
+                    aria-label="Draw the bolt to confirm you are 18 or over and enter the House"></button>
+          </div>
+        </div>
+
+        <p class="gate__fine">Nothing is recorded. Your answer is held in this browser tab alone, and forgotten when you close it.</p>
+      </div>
+    </div>
+
+    <button class="gate__leave" id="gateLeave" type="button">Not tonight &rarr;</button>
+
+  </div>
+</div>
 
 <!-- ====================== UTILITY BAR ====================== -->
 <div class="util">
@@ -1498,6 +1777,145 @@ h1,h2,h3{ font-family:var(--serif); font-weight:400; line-height:1.04; letter-sp
     var y = document.getElementById('house').getBoundingClientRect().top + window.scrollY - 80;
     window.scrollTo({ top:y, behavior:'smooth' });
   }); }
+
+
+  /* ---- VIII. The Door: knock, grille, bolt ---- */
+  (function(){
+    var gate = document.getElementById('gate');
+    if(!gate) return;
+    var doc = document.documentElement;
+    if(!doc.classList.contains('gated')){          // already answered this session
+      if(gate.parentNode) gate.parentNode.removeChild(gate);
+      return;
+    }
+
+    var KEY   = 'howl.door',
+        knock = document.getElementById('gateKnock'),
+        heard = document.getElementById('gateHeard'),
+        leave = document.getElementById('gateLeave'),
+        bolt  = document.getElementById('bolt'),
+        track = document.getElementById('boltTrack'),
+        knob  = document.getElementById('boltKnob'),
+        texts = [document.getElementById('boltText'), document.getElementById('boltTextGold')];
+
+    // The House is out of reach while the door is shut.
+    var behind = [].slice.call(document.body.children).filter(function(el){ return el !== gate; });
+    behind.forEach(function(el){ el.setAttribute('inert',''); el.setAttribute('aria-hidden','true'); });
+    function unbar(){ behind.forEach(function(el){ el.removeAttribute('inert'); el.removeAttribute('aria-hidden'); }); }
+
+    /* --- the knock --- */
+    var listening = false;
+    function doKnock(){
+      if(listening) return;
+      listening = true;
+      gate.classList.add('is-knocking');
+      setTimeout(function(){ gate.classList.remove('is-knocking'); }, 660);
+      setTimeout(function(){
+        gate.classList.add('is-heard');
+        heard.removeAttribute('inert');
+        measure();
+        knob.focus({ preventScroll:true });
+      }, 430);
+      setTimeout(function(){
+        var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+        bolt.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block:'nearest' });
+      }, 1250);
+    }
+    knock.addEventListener('click', doKnock);
+
+    /* --- the bolt --- */
+    var max = 0, pos = 0, dragging = false, moved = false, drawn = false, startX = 0, startPos = 0;
+
+    function measure(){
+      max = Math.max(1, track.clientWidth - 10 - knob.offsetWidth);
+      setPos(drawn ? max : pos);
+    }
+    function setPos(px){
+      pos = Math.max(0, Math.min(max, px));
+      var pct = (pos / max) * 100;
+      knob.style.setProperty('--x', pos + 'px');
+      bolt.style.setProperty('--p', pct + '%');
+      knob.setAttribute('aria-valuenow', Math.round(pct));
+    }
+    function draw(){
+      if(drawn) return;
+      drawn = true;
+      setPos(max);
+      bolt.classList.add('is-drawn');
+      knob.setAttribute('aria-valuetext', 'Bolt drawn — the door is open');
+      texts.forEach(function(t){ if(t) t.textContent = 'The door is open'; });
+      try{ sessionStorage.setItem(KEY, '1'); }catch(e){}
+
+      setTimeout(function(){ gate.classList.add('is-open'); unbar(); }, 470);
+      setTimeout(function(){
+        doc.classList.remove('gated');
+        doc.classList.add('gate-cleared');
+        if(gate.parentNode) gate.parentNode.removeChild(gate);
+        var home = document.querySelector('.nav .monogram');
+        if(home && home.focus) home.focus({ preventScroll:true });
+      }, 2150);
+    }
+
+    knob.addEventListener('pointerdown', function(e){
+      if(drawn) return;
+      dragging = true; moved = false; startX = e.clientX; startPos = pos;
+      bolt.classList.add('is-dragging');
+      if(knob.setPointerCapture){ try{ knob.setPointerCapture(e.pointerId); }catch(err){} }
+    });
+    knob.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var dx = e.clientX - startX;
+      if(Math.abs(dx) > 3) moved = true;
+      setPos(startPos + dx);
+    });
+    function endDrag(){
+      if(!dragging) return;
+      dragging = false;
+      bolt.classList.remove('is-dragging');
+      if(pos >= max * 0.86){ draw(); return; }
+      if(!moved){                                   // a tap: show it wants to travel
+        setPos(Math.min(max, 24));
+        setTimeout(function(){ if(!drawn) setPos(0); }, 280);
+      } else { setPos(0); }
+    }
+    knob.addEventListener('pointerup', endDrag);
+    knob.addEventListener('pointercancel', endDrag);
+
+    knob.addEventListener('keydown', function(e){
+      if(drawn) return;
+      var k = e.key, step = max / 7;
+      if(k === 'ArrowRight' || k === 'ArrowUp'){ setPos(pos + step); e.preventDefault(); }
+      else if(k === 'ArrowLeft' || k === 'ArrowDown'){ setPos(pos - step); e.preventDefault(); }
+      else if(k === 'Home'){ setPos(0); e.preventDefault(); }
+      else if(k === 'End' || k === 'Enter' || k === ' ' || k === 'Spacebar'){ draw(); e.preventDefault(); return; }
+      if(pos >= max) draw();
+    });
+    // Assistive tech activates the slider with a synthetic click (detail 0).
+    knob.addEventListener('click', function(e){ if(e.detail === 0) draw(); });
+
+    /* --- turning away --- */
+    leave.addEventListener('click', function(){
+      try{ sessionStorage.removeItem(KEY); }catch(e){}
+      location.replace('https://www.google.co.uk/');
+    });
+
+    /* --- keep focus behind the door --- */
+    gate.addEventListener('keydown', function(e){
+      if(e.key !== 'Tab') return;
+      var f = [].slice.call(gate.querySelectorAll('button'))
+        .filter(function(el){ return el.offsetParent !== null && !el.closest('[inert]'); });
+      if(!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if(e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
+      else if(!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
+    });
+
+    window.addEventListener('resize', measure, { passive:true });
+    measure();
+    setTimeout(measure, 300);                       // after the fonts settle
+    setTimeout(function(){ gate.focus({ preventScroll:true }); }, 80);
+  })();
+
 </script>
 
 
