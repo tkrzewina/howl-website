@@ -949,6 +949,56 @@ h1,h2,h3{ font-family:var(--serif); font-weight:400; line-height:1.04; letter-sp
   .threshold__panel,.threshold__pelmet,.seal__half,.mcard__frost,.mcard__sweep,.keyplate__scene{ transition:none; }
 }
 
+
+/* ---- VI. The Week (diary rail under "available today") ---- */
+.week{ margin-top:clamp(44px,6vw,70px); }
+.week__head{ display:flex; align-items:baseline; justify-content:space-between; gap:20px;
+  flex-wrap:wrap; margin-bottom:18px; }
+.week__rows{ display:grid; }
+.week__row{ display:grid; grid-template-columns:168px 1fr auto; gap:22px; align-items:center;
+  padding-block:15px; border-bottom:1px solid var(--hair-soft); transition:background .4s ease; }
+.week__row:first-child{ border-top:1px solid var(--hair-soft); }
+.week__row:hover{ background:rgba(201,162,39,.05); }
+.week__day{ font-family:var(--label); font-size:.68rem; letter-spacing:.24em; text-transform:uppercase;
+  color:var(--bone-faint); }
+.week__row.is-today .week__day{ color:var(--gold); }
+.week__marks{ display:flex; gap:5px; flex-wrap:wrap; }
+.week__pip{ width:30px; height:5px; background:var(--oxblood-lt); opacity:.4;
+  transition:opacity .4s ease,background .4s ease; }
+.week__pip.on{ background:var(--gold); opacity:.82; }
+.week__row:hover .week__pip.on{ opacity:1; }
+.week__count{ font-family:var(--label); font-size:.66rem; letter-spacing:.16em;
+  color:var(--bone-faint); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.week__row.is-today .week__count{ color:var(--bone); }
+.week__legend{ margin-top:16px; display:flex; gap:24px; flex-wrap:wrap;
+  font-family:var(--label); font-size:.58rem; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--bone-faint); }
+.week__key{ display:inline-block; width:20px; height:5px; vertical-align:middle; margin-right:9px; }
+
+/* ---- VII. The Whispers (drifting testimony band) ---- */
+.whisper{ margin-top:clamp(48px,7vw,80px); padding-top:clamp(30px,4vw,44px);
+  border-top:1px solid var(--hair-soft); overflow:hidden; position:relative;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); }
+.whisper__track{ display:flex; width:max-content; animation:whisperdrift 58s linear infinite; }
+.whisper:hover .whisper__track{ animation-play-state:paused; }
+.whisper__item{ font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size:clamp(1.15rem,2vw,1.7rem); color:var(--bone-dim); white-space:nowrap;
+  display:flex; align-items:center; gap:34px; padding-right:34px; }
+.whisper__item::after{ content:""; width:7px; height:7px; transform:rotate(45deg);
+  border:1px solid var(--gold); flex:none; }
+@keyframes whisperdrift{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+@media (max-width:640px){
+  .week__row{ grid-template-columns:1fr auto; row-gap:8px; }
+  .week__count{ grid-column:2; justify-self:start; }
+}
+@media (prefers-reduced-motion:reduce){
+  .whisper__track{ animation:none; flex-wrap:wrap; width:auto; }
+  .whisper__item{ white-space:normal; }
+  .whisper{ -webkit-mask-image:none; mask-image:none; }
+}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -1124,6 +1174,26 @@ h1,h2,h3{ font-family:var(--serif); font-weight:400; line-height:1.04; letter-sp
       <article class="tcard reveal d2"><div class="arch"><span class="tcard__avail"><span class="d"></span>From 16:00</span><img class="ph" src="assets/img/placeholders/today3.svg" alt="" width="600" height="880" loading="lazy" decoding="async"></div><div class="tcard__meta"><span class="tcard__name">Cleo</span><span class="tcard__tag">Domme</span></div></article>
       <article class="tcard reveal d3"><div class="arch"><span class="tcard__avail"><span class="d"></span>Evening</span><img class="ph" src="assets/img/placeholders/today4.svg" alt="" width="600" height="880" loading="lazy" decoding="async"></div><div class="tcard__meta"><span class="tcard__name">Vivian</span><span class="tcard__tag">Domme</span></div></article>
     </div>
+
+    <div class="week reveal d2">
+      <div class="week__head">
+        <div class="rule rule--left"><span class="diamond"></span><span class="label">The Week Ahead</span></div>
+        <span class="week__count">Hours held for the House</span>
+      </div>
+      <div class="week__rows" id="weekRows">
+        <div class="week__row" data-day="0"><span class="week__day">Monday</span><span class="week__marks"><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip"></span><span class="week__pip on"></span><span class="week__pip"></span><span class="week__pip"></span></span><span class="week__count">3 of 6</span></div>
+        <div class="week__row" data-day="1"><span class="week__day">Tuesday</span><span class="week__marks"><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip"></span><span class="week__pip on"></span><span class="week__pip on"></span></span><span class="week__count">5 of 6</span></div>
+        <div class="week__row" data-day="2"><span class="week__day">Wednesday</span><span class="week__marks"><span class="week__pip"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip"></span><span class="week__pip"></span></span><span class="week__count">3 of 6</span></div>
+        <div class="week__row" data-day="3"><span class="week__day">Thursday</span><span class="week__marks"><span class="week__pip on"></span><span class="week__pip"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip"></span></span><span class="week__count">4 of 6</span></div>
+        <div class="week__row" data-day="4"><span class="week__day">Friday</span><span class="week__marks"><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip on"></span></span><span class="week__count">6 of 6</span></div>
+        <div class="week__row" data-day="5"><span class="week__day">Saturday</span><span class="week__marks"><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip on"></span></span><span class="week__count">5 of 6</span></div>
+        <div class="week__row" data-day="6"><span class="week__day">Sunday</span><span class="week__marks"><span class="week__pip"></span><span class="week__pip"></span><span class="week__pip on"></span><span class="week__pip on"></span><span class="week__pip"></span><span class="week__pip"></span></span><span class="week__count">2 of 6</span></div>
+      </div>
+      <div class="week__legend">
+        <span><span class="week__key" style="background:var(--gold);opacity:.82"></span>Available</span>
+        <span><span class="week__key" style="background:var(--oxblood-lt);opacity:.4"></span>Taken</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1215,6 +1285,10 @@ h1,h2,h3{ font-family:var(--serif); font-weight:400; line-height:1.04; letter-sp
       </form>
       <p class="fineprint reveal d3">Discreet · No name required · Unsubscribe anytime</p>
     </div>
+  </div>
+
+  <div class="whisper">
+    <div class="whisper__track"><span class="whisper__item">Held exactly as I asked, and not a step further.</span><span class="whisper__item">I arrived nervous and left steadier than I have felt in months.</span><span class="whisper__item">Nothing was rushed. That is the whole of it.</span><span class="whisper__item">Discretion I did not have to ask for.</span><span class="whisper__item">She read what I could not say out loud.</span><span class="whisper__item">Careful, unhurried, and entirely without judgement.</span><span class="whisper__item">Held exactly as I asked, and not a step further.</span><span class="whisper__item">I arrived nervous and left steadier than I have felt in months.</span><span class="whisper__item">Nothing was rushed. That is the whole of it.</span><span class="whisper__item">Discretion I did not have to ask for.</span><span class="whisper__item">She read what I could not say out loud.</span><span class="whisper__item">Careful, unhurried, and entirely without judgement.</span></div>
   </div>
 </section>
 
@@ -1372,6 +1446,22 @@ h1,h2,h3{ font-family:var(--serif); font-weight:400; line-height:1.04; letter-sp
     var onChange = function(){ if(!mq.matches) t.classList.add('is-open'); };
     if(mq.addEventListener) mq.addEventListener('change', onChange);
     else if(mq.addListener) mq.addListener(onChange);
+  })();
+
+
+  // The Week: mark the real current day on the diary rail
+  (function(){
+    var rows = document.querySelectorAll('#weekRows .week__row');
+    if(!rows.length) return;
+    var idx = (new Date().getDay() + 6) % 7;   // Mon = 0
+    rows.forEach(function(r){
+      var isToday = Number(r.getAttribute('data-day')) === idx;
+      r.classList.toggle('is-today', isToday);
+      if(isToday){
+        var d = r.querySelector('.week__day');
+        if(d && d.textContent.indexOf('today') === -1){ d.innerHTML = d.textContent + ' &middot; today'; }
+      }
+    });
   })();
 
   // The Seal: break to reveal how enquiries are handled

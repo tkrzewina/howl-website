@@ -88,14 +88,24 @@ Each degrades safely: the curtain force-opens after 3s if the observer never
 fires, candlelight is suppressed on touch devices, and every transition is
 disabled under `prefers-reduced-motion`.
 
-### Two more were designed but deliberately not built
+### ⚠️ The Week and The Whispers run on SAMPLE DATA
 
-- **The Whispers** — a drifting band of testimony. Needs real quotes. Inventing
-  testimonials for a live public page would be fabricating reviews.
-- **The Week** — a seven-day availability rail. Needs real availability data.
-  Publishing invented hours would send people to the door at the wrong time.
+Both are built and live, and neither is labelled as sample on the page:
 
-Both are ready to build the moment the content exists.
+- **The Week** (`#weekRows`, in the Diary section) shows invented availability.
+  The seven rows are hard-coded in `index.html`; only the "today" highlight is
+  real (set from the visitor's own clock in JS).
+- **The Whispers** (band closing the Private List section) shows six invented
+  testimonials.
+
+Replace both before this site is promoted, indexed, or attached to a real
+domain. Invented testimonials on a live UK commercial site are banned under the
+Digital Markets, Competition and Consumers Act 2024, and invented availability
+will send people to the door at the wrong time.
+
+To swap the week, edit the `week__pip` runs — `on` = available. To swap the
+whispers, replace the `whisper__item` spans, keeping the list duplicated twice
+in `whisper__track` (the loop depends on the doubling).
 
 ## Deploys
 
