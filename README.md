@@ -72,6 +72,31 @@ which cannot work on a static host with nothing to write the sidecar to, so
 every slot rendered as an empty arch. Both the component and its script have
 been removed.
 
+## Fittings
+
+Five interactive elements, all drawn in CSS/SVG — no photography, no libraries:
+
+| Fitting | Where | Behaviour |
+|---|---|---|
+| **The Keyhole** | The House, replacing the interior image | Brass escutcheon with the keyhole cut out; the lit room behind widens on hover |
+| **The Curtain** | Threshold of The Mistresses | Velvet panels part as the section scrolls into view |
+| **The Seal** | The Private List | Wax seal; click to break it and reveal how enquiries are handled |
+| **The Veil** | Roster portrait cards | Frosted glass over each portrait, lifting on hover with a gold hairline sweep |
+| **Candlelight** | Site-wide | A warm light that follows the pointer, guttering like a flame |
+
+Each degrades safely: the curtain force-opens after 3s if the observer never
+fires, candlelight is suppressed on touch devices, and every transition is
+disabled under `prefers-reduced-motion`.
+
+### Two more were designed but deliberately not built
+
+- **The Whispers** — a drifting band of testimony. Needs real quotes. Inventing
+  testimonials for a live public page would be fabricating reviews.
+- **The Week** — a seven-day availability rail. Needs real availability data.
+  Publishing invented hours would send people to the door at the wrong time.
+
+Both are ready to build the moment the content exists.
+
 ## Deploys
 
 Pushes to `main` build automatically (`netlify.toml` + a GitHub webhook to
