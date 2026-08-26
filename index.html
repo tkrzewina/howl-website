@@ -1031,7 +1031,7 @@ h1,h2,h3{ font-family:var(--serif); font-weight:400; line-height:1.04; letter-sp
 
 /* ============================================================
    THE DOOR — the 18+ gate (fitting VIII)
-   A knock, a grille that opens, and a bolt the visitor draws
+   One lock, and a key the visitor turns for themselves
    themselves. The House never draws it for you.
    ============================================================ */
 
@@ -1095,78 +1095,29 @@ html.gated .gate{ display:flex; }
 .gate__title{ font-family:var(--serif); font-weight:300; font-size:clamp(2rem,6.4vw,3rem); line-height:1.04; text-wrap:balance; }
 .gate__lead{ font-size:clamp(.95rem,2.4vw,1.02rem); line-height:1.64; color:var(--bone-dim); max-width:42ch; }
 
-/* ---- the knocker ---- */
-.gate__knocker{ background:none; border:0; padding:6px; cursor:pointer; display:block;
-  width:clamp(94px,24vw,116px); filter:drop-shadow(0 16px 30px rgba(0,0,0,.75)); }
-.gate__knocker svg{ width:100%; height:auto; display:block; }
-.gate__knocker:focus-visible{ outline:1px solid var(--gold); outline-offset:6px; }
-.knock__ring{ transform-origin:60px 36px; }
-.gate.is-knocking .knock__ring{ animation:knockring .62s cubic-bezier(.36,.07,.19,.97); }
-.gate.is-knocking .gate__leaf{ animation:doorshudder .5s ease-out; }
-.gate__ask{ display:grid; grid-template-rows:1fr;
-  transition:grid-template-rows .85s cubic-bezier(.7,0,.2,1), opacity .5s ease; }
-.gate__ask-in{ overflow:hidden; display:flex; flex-direction:column; align-items:center; gap:14px; }
-.gate.is-heard .gate__ask{ grid-template-rows:0fr; opacity:0; pointer-events:none; }
-@keyframes knockring{
-  0%{ transform:rotate(0) }  20%{ transform:rotate(-16deg) }  44%{ transform:rotate(9deg) }
-  68%{ transform:rotate(-5deg) }  86%{ transform:rotate(2deg) }  100%{ transform:rotate(0) }
-}
+/* the doors take the throw of the bolt */
+.gate.is-jolt .gate__leaf{ animation:doorshudder .5s ease-out; }
 @keyframes doorshudder{
   0%,100%{ transform:translate3d(0,0,0) } 16%{ transform:translate3d(0,-2px,0) }
   38%{ transform:translate3d(0,1.5px,0) } 64%{ transform:translate3d(0,-1px,0) }
 }
 
-.gate__hint{ font-family:var(--label); font-size:.6rem; letter-spacing:.34em; text-transform:uppercase;
-  color:var(--bone-faint); }
+/* the House arrives a beat at a time rather than all at once */
+.gate__stage > *{ animation:gaterise .9s cubic-bezier(.16,1,.3,1) both; }
+.gate__stage > *:nth-child(1){ animation-delay:.05s }
+.gate__stage > *:nth-child(2){ animation-delay:.16s }
+.gate__stage > *:nth-child(3){ animation-delay:.27s }
+.gate__stage > *:nth-child(4){ animation-delay:.42s }
+.gate__stage > *:nth-child(5){ animation-delay:.56s }
+.gate__stage > *:nth-child(6){ animation-delay:.66s }
+.gate__stage > *:nth-child(7){ animation-delay:.74s }
+@keyframes gaterise{ from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:none } }
 
-/* ---- the grille ---- */
-.gate__grille{ width:min(400px,100%); }
-.grille__frame{
-  position:relative; height:52px; overflow:hidden;
-  border:1px solid rgba(201,162,39,.38);
-  background:linear-gradient(180deg,#0d0406,#180a0d);
-  box-shadow:inset 0 2px 12px rgba(0,0,0,.9);
-  transition:height .95s cubic-bezier(.7,0,.2,1), box-shadow 1s ease;
-}
-.gate.is-heard .grille__frame{ height:88px; box-shadow:inset 0 2px 12px rgba(0,0,0,.9), 0 0 40px rgba(201,162,39,.2); }
-.grille__inside{ position:absolute; inset:0; opacity:0; transition:opacity 1s ease .15s;
-  background:
-    radial-gradient(70% 120% at 50% 64%,rgba(255,214,140,.5),transparent 62%),
-    radial-gradient(130% 160% at 50% 62%,#a2542a,#4a180f 44%,#140507 100%); }
-.gate.is-heard .grille__inside{ opacity:1; }
-.grille__bars{ position:absolute; inset:0;
-  background:
-    linear-gradient(180deg,rgba(0,0,0,.55),transparent 34%,transparent 62%,rgba(0,0,0,.6)),
-    repeating-linear-gradient(90deg,
-      transparent 0 22px,
-      rgba(240,216,148,.4) 22px 23px,
-      rgba(8,3,5,.94) 23px 29px,
-      rgba(0,0,0,.5) 29px 30px,
-      transparent 30px 52px); }
-.grille__shutter{
-  position:absolute; top:0; bottom:0; width:50.5%; z-index:2;
-  background-image:
-    repeating-linear-gradient(180deg,transparent 0 5px,rgba(0,0,0,.13) 5px 6px),
-    linear-gradient(180deg,#e6d199,#c9a227 24%,#8a6a22 56%,#b6933a 80%,#4f3c11);
-  transition:transform 1.05s cubic-bezier(.7,0,.2,1);
-}
-.grille__shutter--l{ left:0;  box-shadow:2px 0 8px rgba(0,0,0,.7); }
-.grille__shutter--r{ right:0; box-shadow:-2px 0 8px rgba(0,0,0,.7); }
-.gate.is-heard .grille__shutter--l{ transform:translateX(-100%); }
-.gate.is-heard .grille__shutter--r{ transform:translateX(100%); }
-
-/* ---- what is said through it ---- */
-.gate__heard{ width:100%; display:grid; grid-template-rows:0fr; opacity:0;
-  transition:grid-template-rows .95s cubic-bezier(.7,0,.2,1), opacity .7s ease .3s; }
-.gate.is-heard .gate__heard{ grid-template-rows:1fr; opacity:1; }
-.gate__heard-in{ overflow:hidden; display:flex; flex-direction:column; align-items:center;
-  gap:clamp(16px,3vw,22px); padding-top:clamp(4px,1vw,8px); }
-.gate__spoken{ font-family:var(--serif); font-style:italic; font-size:clamp(1.12rem,3vw,1.3rem);
-  line-height:1.4; color:var(--bone); max-width:30ch; }
 .gate__terms{ font-size:.92rem; line-height:1.62; color:var(--bone-dim); max-width:44ch; }
+.gate__terms em{ font-style:normal; color:var(--bone); }
 
 /* ---- the lock: a key you turn ---- */
-.lock{ --p:0; width:min(320px,100%); display:flex; flex-direction:column; align-items:center; gap:12px;
+.lock{ --p:0; width:min(400px,100%); display:flex; flex-direction:column; align-items:center; gap:12px;
   -webkit-user-select:none; user-select:none; }
 .lock__plate{ position:relative; width:100%; aspect-ratio:300/196; touch-action:none; }
 .lock__plate svg{ position:absolute; inset:0; width:100%; height:100%; display:block;
@@ -1174,7 +1125,7 @@ html.gated .gate{ display:flex; }
 
 .lock__bolt{ transform:translateX(calc(var(--p) * 50px));
   transition:transform .5s cubic-bezier(.16,1,.3,1); }
-.lock__key{ transform-box:view-box; transform-origin:112px 100px;
+.lock__key{ transform-box:view-box; transform-origin:83px 100px;
   transform:rotate(calc(var(--p) * -80deg));
   transition:transform .5s cubic-bezier(.16,1,.3,1); }
 .lock__keyart{ filter:drop-shadow(0 3px 6px rgba(0,0,0,.66)); }
@@ -1187,18 +1138,18 @@ html.gated .gate{ display:flex; }
 
 /* which way it goes — breathes until the key is touched */
 .lock__guide{ animation:lockhint 3.2s ease-in-out infinite; }
-.lock.is-touched .lock__guide{ animation:none; opacity:.22; }
-@keyframes lockhint{ 0%,100%{ opacity:.22 } 50%{ opacity:.6 } }
+.lock.is-touched .lock__guide{ animation:none; opacity:.26; }
+@keyframes lockhint{ 0%,100%{ opacity:.3 } 50%{ opacity:.78 } }
 
 /* the hand-hold, over the bow of the key at rest */
-.lock__grip{ position:absolute; left:37.33%; top:81.63%; width:19%; aspect-ratio:1;
+.lock__grip{ position:absolute; left:27.67%; top:81.63%; width:19%; aspect-ratio:1;
   transform:translate(-50%,-50%); padding:0; border:0; border-radius:50%;
   background:none; cursor:grab; }
 .lock.is-turning .lock__grip{ cursor:grabbing; }
 .lock.is-turned .lock__grip{ cursor:default; }
 .lock__grip:focus-visible{ outline:1px solid var(--gold-lt); outline-offset:4px; }
 
-.lock__say{ font-family:var(--label); font-size:clamp(.55rem,1.9vw,.63rem); letter-spacing:.28em;
+.lock__say{ font-family:var(--label); font-size:clamp(.58rem,2vw,.66rem); letter-spacing:.3em;
   text-transform:uppercase; color:var(--bone-faint); text-align:center; transition:color .6s ease; }
 .lock.is-turned .lock__say{ color:var(--gold-lt); }
 
@@ -1213,11 +1164,12 @@ html.gated .gate{ display:flex; }
   .lock__say{ letter-spacing:.2em; }
 }
 @media (prefers-reduced-motion:reduce){
-  .gate,.gate__leaf,.gate__stage,.gate__glow,.grille__frame,.grille__shutter,
-  .grille__inside,.gate__heard,.lock__key,.lock__bolt,.lock__arcfill{ transition-duration:.01ms !important; }
+  .gate,.gate__leaf,.gate__stage,.gate__glow,
+  .lock__key,.lock__bolt,.lock__arcfill{ transition-duration:.01ms !important; }
   .gate__glow{ animation:none; }
   .lock__guide{ animation:none; opacity:.4; }
-  .gate.is-knocking .knock__ring,.gate.is-knocking .gate__leaf{ animation:none; }
+  .gate__stage > *{ animation:none; }
+  .gate.is-jolt .gate__leaf{ animation:none; }
 }
 
 </style>
@@ -1238,66 +1190,12 @@ html.gated .gate{ display:flex; }
       <div class="gate__sub">House of Worship &middot; London W14</div>
     </div>
 
-    <h1 class="gate__title foil" id="gateTitle">You are at the door.</h1>
+    <h1 class="gate__title foil" id="gateTitle">The door is locked.</h1>
 
     <p class="gate__lead" id="gateLead">Beyond it is a private fetish house in West Kensington. What is written and shown here is adult in nature, and meant for adults only.</p>
 
-    <!-- the grille: shut until you are heard -->
-    <div class="gate__grille">
-      <div class="grille__frame">
-        <span class="grille__inside" aria-hidden="true"><span class="grille__bars"></span></span>
-        <span class="grille__shutter grille__shutter--l" aria-hidden="true"></span>
-        <span class="grille__shutter grille__shutter--r" aria-hidden="true"></span>
-      </div>
-    </div>
-
-    <div class="gate__ask">
-     <div class="gate__ask-in">
-    <button class="gate__knocker" id="gateKnock" type="button" aria-label="Knock at the door">
-      <svg viewBox="0 0 120 152" aria-hidden="true" focusable="false">
-        <defs>
-          <linearGradient id="gtBrass" x1="0" y1="0" x2=".3" y2="1">
-            <stop offset="0%" stop-color="#f3e2b0"/><stop offset="22%" stop-color="#c9a227"/>
-            <stop offset="54%" stop-color="#8a6a22"/><stop offset="78%" stop-color="#bb983c"/>
-            <stop offset="100%" stop-color="#4f3c11"/>
-          </linearGradient>
-          <linearGradient id="gtBoss" x1=".2" y1="0" x2=".8" y2="1">
-            <stop offset="0%" stop-color="#fbeec4"/><stop offset="38%" stop-color="#d7b243"/>
-            <stop offset="72%" stop-color="#8a6a22"/><stop offset="100%" stop-color="#5c460f"/>
-          </linearGradient>
-        </defs>
-        <!-- backplate -->
-        <path d="M60 6 q20 0 20 22 v96 q0 22 -20 22 q-20 0 -20 -22 v-96 q0 -22 20 -22 Z"
-              fill="url(#gtBrass)" opacity=".36"/>
-        <!-- the ring, hung from the boss -->
-        <g class="knock__ring">
-          <ellipse cx="60" cy="90" rx="33" ry="38" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="13"/>
-          <ellipse cx="60" cy="90" rx="33" ry="38" fill="none" stroke="url(#gtBrass)" stroke-width="10"/>
-          <ellipse cx="60" cy="90" rx="33" ry="38" fill="none" stroke="rgba(255,246,214,.35)" stroke-width="1.2"/>
-        </g>
-        <!-- the boss it hangs from -->
-        <circle cx="60" cy="36" r="16" fill="rgba(0,0,0,.5)"/>
-        <circle cx="60" cy="35" r="15" fill="url(#gtBoss)"/>
-        <circle cx="60" cy="35" r="15" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="1"/>
-        <circle cx="55" cy="30" r="4" fill="rgba(255,250,228,.5)"/>
-        <!-- the strike stud it lands on -->
-        <circle cx="60" cy="139" r="6.5" fill="url(#gtBoss)"/>
-        <circle cx="60" cy="139" r="6.5" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1"/>
-      </svg>
-    </button>
-
-    <p class="gate__hint" id="gateHint">Knock to be heard</p>
-     </div>
-    </div>
-
-    <!-- what is said back through the grille -->
-    <div class="gate__heard" id="gateHeard" inert>
-      <div class="gate__heard-in">
-        <p class="gate__spoken">&ldquo;Good evening. One question, and then the door is yours.&rdquo;</p>
-        <p class="gate__terms">This is a house of consensual adult fetish. Nothing beyond this door is suitable for anyone under 18. The key is on your side &mdash; the House will not turn it for you.</p>
-
-        <div class="lock" id="lock">
-          <div class="lock__plate" id="lockPlate">
+    <div class="lock" id="lock">
+      <div class="lock__plate" id="lockPlate">
             <svg viewBox="0 0 300 196" aria-hidden="true" focusable="false">
               <defs>
                 <linearGradient id="lkPlate" x1="0" y1="0" x2=".4" y2="1">
@@ -1321,76 +1219,76 @@ html.gated .gate{ display:flex; }
               </defs>
 
               <!-- the keeper, on the other leaf -->
-              <rect x="196" y="25" width="52" height="68" rx="3" fill="rgba(0,0,0,.5)"/>
-              <rect x="196" y="24" width="52" height="68" rx="3" fill="url(#lkPlate)"/>
-              <rect x="196" y="40" width="36" height="36" fill="#0c0507"/>
-              <rect x="196" y="40" width="36" height="2.5" fill="rgba(0,0,0,.75)"/>
-              <rect x="229" y="40" width="3" height="36" fill="rgba(140,112,40,.35)"/>
-              <rect x="196.5" y="24.5" width="51" height="67" rx="3" fill="none" stroke="rgba(0,0,0,.42)"/>
+              <rect x="167" y="25" width="52" height="68" rx="3" fill="rgba(0,0,0,.5)"/>
+              <rect x="167" y="24" width="52" height="68" rx="3" fill="url(#lkPlate)"/>
+              <rect x="167" y="40" width="36" height="36" fill="#0c0507"/>
+              <rect x="167" y="40" width="36" height="2.5" fill="rgba(0,0,0,.75)"/>
+              <rect x="200" y="40" width="3" height="36" fill="rgba(140,112,40,.35)"/>
+              <rect x="167.5" y="24.5" width="51" height="67" rx="3" fill="none" stroke="rgba(0,0,0,.42)"/>
               <g fill="#63501c" stroke="rgba(0,0,0,.5)" stroke-width="1">
-                <circle cx="240" cy="34" r="3.2"/><path d="M237.8 34h4.4"/>
-                <circle cx="240" cy="82" r="3.2"/><path d="M237.8 82h4.4"/>
+                <circle cx="211" cy="34" r="3.2"/><path d="M208.8 34h4.4"/>
+                <circle cx="211" cy="82" r="3.2"/><path d="M208.8 82h4.4"/>
               </g>
 
               <!-- the bolt: shot by the key -->
               <g class="lock__bolt">
-                <rect x="114" y="46" width="56" height="24" rx="1.5" fill="url(#lkBolt)"/>
-                <rect x="164" y="46" width="6" height="24" fill="rgba(255,247,220,.14)"/>
-                <path d="M114 58 H170" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+                <rect x="85" y="46" width="56" height="24" rx="1.5" fill="url(#lkBolt)"/>
+                <rect x="135" y="46" width="6" height="24" fill="rgba(255,247,220,.14)"/>
+                <path d="M85 58 H141" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
               </g>
 
               <!-- the case of the rim lock, on the face of the door -->
-              <rect x="62" y="25" width="100" height="142" rx="4" fill="rgba(0,0,0,.5)"/>
-              <rect x="62" y="24" width="100" height="142" rx="4" fill="url(#lkPlate)"/>
-              <rect x="62.5" y="24.5" width="99" height="141" rx="4" fill="none" stroke="rgba(0,0,0,.45)"/>
-              <rect x="69" y="31" width="86" height="128" rx="2" fill="none" stroke="rgba(255,247,220,.1)"/>
+              <rect x="33" y="25" width="100" height="142" rx="4" fill="rgba(0,0,0,.5)"/>
+              <rect x="33" y="24" width="100" height="142" rx="4" fill="url(#lkPlate)"/>
+              <rect x="33.5" y="24.5" width="99" height="141" rx="4" fill="none" stroke="rgba(0,0,0,.45)"/>
+              <rect x="40" y="31" width="86" height="128" rx="2" fill="none" stroke="rgba(255,247,220,.1)"/>
               <g fill="#63501c" stroke="rgba(0,0,0,.5)" stroke-width="1">
-                <circle cx="76" cy="38" r="3.4"/><path d="M73.6 38h4.8"/>
-                <circle cx="148" cy="38" r="3.4"/><path d="M145.6 38h4.8"/>
-                <circle cx="76" cy="152" r="3.4"/><path d="M73.6 152h4.8"/>
-                <circle cx="148" cy="152" r="3.4"/><path d="M145.6 152h4.8"/>
+                <circle cx="47" cy="38" r="3.4"/><path d="M44.6 38h4.8"/>
+                <circle cx="119" cy="38" r="3.4"/><path d="M116.6 38h4.8"/>
+                <circle cx="47" cy="152" r="3.4"/><path d="M44.6 152h4.8"/>
+                <circle cx="119" cy="152" r="3.4"/><path d="M116.6 152h4.8"/>
               </g>
 
               <!-- the arc a century of turning has worn into the plate -->
-              <path d="M112 144 A44 44 0 0 0 155.3 107.6" fill="none"
-                    stroke="rgba(0,0,0,.34)" stroke-width="1.8" stroke-linecap="round"
+              <path d="M83 144 A44 44 0 0 0 126.3 107.6" fill="none"
+                    stroke="rgba(0,0,0,.42)" stroke-width="1.8" stroke-linecap="round"
                     stroke-dasharray="1 6"/>
               <path class="lock__arcfill" d="M112 144 A44 44 0 0 0 155.3 107.6" fill="none"
                     stroke="rgba(240,216,148,.85)" stroke-width="1.8" stroke-linecap="round"/>
-              <path class="lock__guide" d="M155.3 99.6 l4.6 8 h-9.2 z" fill="rgba(240,216,148,.85)"/>
+              <path class="lock__guide" d="M126.3 99.6 l4.6 8 h-9.2 z" fill="rgba(240,216,148,.85)"/>
 
               <!-- the keyhole -->
-              <circle cx="112" cy="100" r="12" fill="#0c0507"/>
-              <path d="M103.5 106 L99 132 Q112 138 125 132 L120.5 106 Z" fill="#0c0507"/>
-              <circle cx="112" cy="100" r="12" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/>
-              <path d="M102 96 A12 12 0 0 1 117 90" fill="none" stroke="rgba(255,247,220,.22)" stroke-width="1.2"/>
+              <circle cx="83" cy="100" r="12" fill="#0c0507"/>
+              <path d="M74.5 106 L70 132 Q83 138 96 132 L91.5 106 Z" fill="#0c0507"/>
+              <circle cx="83" cy="100" r="12" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/>
+              <path d="M73 96 A12 12 0 0 1 88 90" fill="none" stroke="rgba(255,247,220,.22)" stroke-width="1.2"/>
 
               <!-- the key -->
               <g class="lock__key">
                 <g class="lock__keyart">
-                  <rect x="107.5" y="96" width="9" height="56" rx="1.5" fill="url(#lkKey)"/>
-                  <rect x="101" y="120" width="22" height="7" rx="2" fill="url(#lkKey)"/>
-                  <circle cx="112" cy="160" r="14" fill="none" stroke="url(#lkKey)" stroke-width="6.5"/>
-                  <circle cx="112" cy="160" r="17.4" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
-                  <circle cx="112" cy="160" r="10.6" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
-                  <circle cx="105.5" cy="154" r="2.6" fill="rgba(255,250,228,.5)"/>
-                  <circle cx="111" cy="108" r="1.7" fill="rgba(255,250,228,.42)"/>
+                  <rect x="78.5" y="96" width="9" height="56" rx="1.5" fill="url(#lkKey)"/>
+                  <rect x="72" y="120" width="22" height="7" rx="2" fill="url(#lkKey)"/>
+                  <circle cx="83" cy="160" r="14" fill="none" stroke="url(#lkKey)" stroke-width="6.5"/>
+                  <circle cx="83" cy="160" r="17.4" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
+                  <circle cx="83" cy="160" r="10.6" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
+                  <circle cx="76.5" cy="154" r="2.6" fill="rgba(255,250,228,.5)"/>
+                  <circle cx="82" cy="108" r="1.7" fill="rgba(255,250,228,.42)"/>
                 </g>
               </g>
 
               <ellipse class="lock__flare" cx="150" cy="100" rx="140" ry="85" fill="url(#lkFlare)"/>
             </svg>
 
-            <button class="lock__grip" id="lockGrip" type="button" role="slider"
-                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Locked"
-                    aria-label="Turn the key to confirm you are 18 or over and enter the House"></button>
-          </div>
-          <p class="lock__say" id="lockSay">Turn the key &mdash; I am 18 or over</p>
-        </div>
-
-        <p class="gate__fine">Nothing is recorded. Your answer is held in this browser tab alone, and forgotten when you close it.</p>
+        <button class="lock__grip" id="lockGrip" type="button" role="slider"
+                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Locked"
+                aria-label="Turn the key to confirm you are 18 or over and enter the House"></button>
       </div>
+      <p class="lock__say" id="lockSay">Turn the key &mdash; I am 18 or over</p>
     </div>
+
+    <p class="gate__terms">This is a house of consensual adult fetish. <em>Nothing beyond this door is suitable for anyone under 18.</em> The key is on your side &mdash; the House will not turn it for you.</p>
+
+    <p class="gate__fine">Nothing is recorded. Your answer is held in this browser tab alone, and forgotten when you close it.</p>
 
     <button class="gate__leave" id="gateLeave" type="button">Not tonight &rarr;</button>
 
@@ -1866,7 +1764,7 @@ html.gated .gate{ display:flex; }
   }); }
 
 
-  /* ---- VIII. The Door: knock, grille, bolt ---- */
+  /* ---- VIII. The Door: one lock, one key ---- */
   (function(){
     var gate = document.getElementById('gate');
     if(!gate) return;
@@ -1877,8 +1775,6 @@ html.gated .gate{ display:flex; }
     }
 
     var KEY   = 'howl.door',
-        knock = document.getElementById('gateKnock'),
-        heard = document.getElementById('gateHeard'),
         leave = document.getElementById('gateLeave'),
         lock  = document.getElementById('lock'),
         plate = document.getElementById('lockPlate'),
@@ -1890,26 +1786,6 @@ html.gated .gate{ display:flex; }
     behind.forEach(function(el){ el.setAttribute('inert',''); el.setAttribute('aria-hidden','true'); });
     function unbar(){ behind.forEach(function(el){ el.removeAttribute('inert'); el.removeAttribute('aria-hidden'); }); }
 
-    /* --- the knock --- */
-    var listening = false;
-    function doKnock(){
-      if(listening) return;
-      listening = true;
-      gate.classList.add('is-knocking');
-      setTimeout(function(){ gate.classList.remove('is-knocking'); }, 660);
-      setTimeout(function(){
-        gate.classList.add('is-heard');
-        heard.removeAttribute('inert');
-        centre();
-        grip.focus({ preventScroll:true });
-      }, 430);
-      setTimeout(function(){
-        var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-        lock.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block:'nearest' });
-      }, 1250);
-    }
-    knock.addEventListener('click', doKnock);
-
     /* --- the lock: turn the key, throw the bolt --- */
     var TURN = 80,                       // degrees of throw, matching the CSS
         p = 0, turning = false, moved = false, turned = false,
@@ -1917,7 +1793,7 @@ html.gated .gate{ display:flex; }
 
     function centre(){                   // where the keyhole sits on screen
       var r = plate.getBoundingClientRect();
-      cx = r.left + r.width  * (112/300);
+      cx = r.left + r.width  * (83/300);
       cy = r.top  + r.height * (100/196);
       deadR = r.width * 0.11;            // too near the pin to read an angle
     }
@@ -1942,8 +1818,8 @@ html.gated .gate{ display:flex; }
       if(say) say.textContent = 'The door is open';
       try{ sessionStorage.setItem(KEY, '1'); }catch(e){}
 
-      gate.classList.add('is-knocking');                 // the bolt lands with a jolt
-      setTimeout(function(){ gate.classList.remove('is-knocking'); }, 520);
+      gate.classList.add('is-jolt');                     // the bolt lands with a jolt
+      setTimeout(function(){ gate.classList.remove('is-jolt'); }, 520);
       setTimeout(function(){ gate.classList.add('is-open'); unbar(); }, 640);
       setTimeout(function(){
         doc.classList.remove('gated');
