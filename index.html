@@ -1165,36 +1165,42 @@ html.gated .gate{ display:flex; }
   line-height:1.4; color:var(--bone); max-width:30ch; }
 .gate__terms{ font-size:.92rem; line-height:1.62; color:var(--bone-dim); max-width:44ch; }
 
-/* ---- the bolt ---- */
-.bolt{ --knobw:clamp(86px,26%,108px); width:min(400px,100%); touch-action:pan-y;
+/* ---- the lock: a key you turn ---- */
+.lock{ --p:0; width:min(320px,100%); display:flex; flex-direction:column; align-items:center; gap:12px;
   -webkit-user-select:none; user-select:none; }
-.bolt__track{ position:relative; height:62px; border:1px solid rgba(201,162,39,.36);
-  background:linear-gradient(180deg,#1d0b0f,#110608);
-  box-shadow:inset 0 3px 14px rgba(0,0,0,.85); }
-.bolt__keep{ position:absolute; right:0; top:0; bottom:0; width:26px;
-  background:linear-gradient(90deg,rgba(201,162,39,.06),rgba(201,162,39,.20));
-  border-left:1px solid rgba(201,162,39,.34); }
-.bolt__fill{ position:absolute; left:0; top:0; bottom:0; width:var(--p,0%);
-  background:linear-gradient(90deg,rgba(201,162,39,.04),rgba(201,162,39,.17)); }
-.bolt__text{ position:absolute; inset:0 30px 0 calc(var(--knobw) + 16px); display:grid; place-items:center; pointer-events:none;
-  font-family:var(--label); font-size:clamp(.55rem,1.9vw,.63rem); letter-spacing:.28em;
-  text-transform:uppercase; color:var(--bone-faint); }
-.bolt__text--gold{ color:var(--gold-lt); clip-path:inset(0 calc(100% - var(--p,0%)) 0 0); }
-.bolt__knob{
-  position:absolute; left:5px; top:5px; bottom:5px; width:var(--knobw); z-index:3;
-  padding:0; border:1px solid rgba(240,216,148,.5); cursor:grab;
-  background-image:
-    repeating-linear-gradient(90deg,transparent 0 46%,rgba(0,0,0,.22) 46% 47%,transparent 47% 53%,rgba(0,0,0,.22) 53% 54%,transparent 54%),
-    linear-gradient(180deg,#f3e2b0,#c9a227 30%,#8a6a22 62%,#c9a227 84%,#6b5219);
-  box-shadow:0 8px 20px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,247,220,.75);
-  transform:translateX(var(--x,0px));
-  transition:transform .55s cubic-bezier(.16,1,.3,1);
-}
-.bolt__knob{ touch-action:none; }
-.bolt__knob:focus-visible{ outline:1px solid var(--gold-lt); outline-offset:5px; }
-.bolt.is-dragging .bolt__knob{ transition:none; cursor:grabbing; }
-.bolt.is-drawn .bolt__knob{ cursor:default; box-shadow:0 8px 20px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,247,220,.75), 0 0 26px rgba(240,216,148,.5); }
-.bolt.is-drawn .bolt__track{ border-color:rgba(240,216,148,.6); }
+.lock__plate{ position:relative; width:100%; aspect-ratio:300/196; touch-action:none; }
+.lock__plate svg{ position:absolute; inset:0; width:100%; height:100%; display:block;
+  filter:drop-shadow(0 14px 28px rgba(0,0,0,.6)); }
+
+.lock__bolt{ transform:translateX(calc(var(--p) * 50px));
+  transition:transform .5s cubic-bezier(.16,1,.3,1); }
+.lock__key{ transform-box:view-box; transform-origin:112px 100px;
+  transform:rotate(calc(var(--p) * -80deg));
+  transition:transform .5s cubic-bezier(.16,1,.3,1); }
+.lock__keyart{ filter:drop-shadow(0 3px 6px rgba(0,0,0,.66)); }
+/* the gold trail the bow leaves along the engraved arc (arc length 61.4) */
+.lock__arcfill{ stroke-dasharray:62; stroke-dashoffset:calc(62px - var(--p) * 62px);
+  transition:stroke-dashoffset .5s cubic-bezier(.16,1,.3,1); }
+.lock__flare{ opacity:0; transition:opacity .8s ease; }
+.lock.is-turned .lock__flare{ opacity:1; }
+.lock.is-turning .lock__bolt,.lock.is-turning .lock__key,.lock.is-turning .lock__arcfill{ transition:none; }
+
+/* which way it goes — breathes until the key is touched */
+.lock__guide{ animation:lockhint 3.2s ease-in-out infinite; }
+.lock.is-touched .lock__guide{ animation:none; opacity:.22; }
+@keyframes lockhint{ 0%,100%{ opacity:.22 } 50%{ opacity:.6 } }
+
+/* the hand-hold, over the bow of the key at rest */
+.lock__grip{ position:absolute; left:37.33%; top:81.63%; width:19%; aspect-ratio:1;
+  transform:translate(-50%,-50%); padding:0; border:0; border-radius:50%;
+  background:none; cursor:grab; }
+.lock.is-turning .lock__grip{ cursor:grabbing; }
+.lock.is-turned .lock__grip{ cursor:default; }
+.lock__grip:focus-visible{ outline:1px solid var(--gold-lt); outline-offset:4px; }
+
+.lock__say{ font-family:var(--label); font-size:clamp(.55rem,1.9vw,.63rem); letter-spacing:.28em;
+  text-transform:uppercase; color:var(--bone-faint); text-align:center; transition:color .6s ease; }
+.lock.is-turned .lock__say{ color:var(--gold-lt); }
 
 .gate__fine{ font-size:.76rem; line-height:1.55; color:var(--bone-faint); max-width:34ch; text-wrap:pretty; }
 .gate__leave{ font-family:var(--label); font-size:.6rem; letter-spacing:.3em; text-transform:uppercase;
@@ -1204,12 +1210,13 @@ html.gated .gate{ display:flex; }
 
 @media (max-width:560px){
   .gate__stage{ max-width:none; }
-  .bolt__text{ letter-spacing:.2em; }
+  .lock__say{ letter-spacing:.2em; }
 }
 @media (prefers-reduced-motion:reduce){
   .gate,.gate__leaf,.gate__stage,.gate__glow,.grille__frame,.grille__shutter,
-  .grille__inside,.gate__heard,.bolt__knob{ transition-duration:.01ms !important; }
+  .grille__inside,.gate__heard,.lock__key,.lock__bolt,.lock__arcfill{ transition-duration:.01ms !important; }
   .gate__glow{ animation:none; }
+  .lock__guide{ animation:none; opacity:.4; }
   .gate.is-knocking .knock__ring,.gate.is-knocking .gate__leaf{ animation:none; }
 }
 
@@ -1287,18 +1294,98 @@ html.gated .gate{ display:flex; }
     <div class="gate__heard" id="gateHeard" inert>
       <div class="gate__heard-in">
         <p class="gate__spoken">&ldquo;Good evening. One question, and then the door is yours.&rdquo;</p>
-        <p class="gate__terms">This is a house of consensual adult fetish. Nothing beyond this door is suitable for anyone under 18. The bolt is on your side &mdash; the House will not draw it for you.</p>
+        <p class="gate__terms">This is a house of consensual adult fetish. Nothing beyond this door is suitable for anyone under 18. The key is on your side &mdash; the House will not turn it for you.</p>
 
-        <div class="bolt" id="bolt">
-          <div class="bolt__track" id="boltTrack">
-            <span class="bolt__fill" aria-hidden="true"></span>
-            <span class="bolt__keep" aria-hidden="true"></span>
-            <span class="bolt__text" id="boltText" aria-hidden="true">I am 18 or over &rarr;</span>
-            <span class="bolt__text bolt__text--gold" id="boltTextGold" aria-hidden="true">I am 18 or over &rarr;</span>
-            <button class="bolt__knob" id="boltKnob" type="button" role="slider"
-                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Bolt shut"
-                    aria-label="Draw the bolt to confirm you are 18 or over and enter the House"></button>
+        <div class="lock" id="lock">
+          <div class="lock__plate" id="lockPlate">
+            <svg viewBox="0 0 300 196" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="lkPlate" x1="0" y1="0" x2=".4" y2="1">
+                  <stop offset="0%" stop-color="#bfa568"/><stop offset="26%" stop-color="#8c7126"/>
+                  <stop offset="55%" stop-color="#544012"/><stop offset="78%" stop-color="#7c6323"/>
+                  <stop offset="100%" stop-color="#2a1f08"/>
+                </linearGradient>
+                <linearGradient id="lkBolt" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#e2cd95"/><stop offset="32%" stop-color="#b08f31"/>
+                  <stop offset="68%" stop-color="#6a521a"/><stop offset="100%" stop-color="#a98a30"/>
+                </linearGradient>
+                <linearGradient id="lkKey" x1=".2" y1="0" x2=".8" y2="1">
+                  <stop offset="0%" stop-color="#eeddaa"/><stop offset="38%" stop-color="#bb9a3a"/>
+                  <stop offset="72%" stop-color="#775c1c"/><stop offset="100%" stop-color="#4a380c"/>
+                </linearGradient>
+                <radialGradient id="lkFlare" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ffeec2" stop-opacity=".4"/>
+                  <stop offset="46%" stop-color="#e0b45c" stop-opacity=".15"/>
+                  <stop offset="100%" stop-color="#c9a227" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+
+              <!-- the keeper, on the other leaf -->
+              <rect x="196" y="25" width="52" height="68" rx="3" fill="rgba(0,0,0,.5)"/>
+              <rect x="196" y="24" width="52" height="68" rx="3" fill="url(#lkPlate)"/>
+              <rect x="196" y="40" width="36" height="36" fill="#0c0507"/>
+              <rect x="196" y="40" width="36" height="2.5" fill="rgba(0,0,0,.75)"/>
+              <rect x="229" y="40" width="3" height="36" fill="rgba(140,112,40,.35)"/>
+              <rect x="196.5" y="24.5" width="51" height="67" rx="3" fill="none" stroke="rgba(0,0,0,.42)"/>
+              <g fill="#63501c" stroke="rgba(0,0,0,.5)" stroke-width="1">
+                <circle cx="240" cy="34" r="3.2"/><path d="M237.8 34h4.4"/>
+                <circle cx="240" cy="82" r="3.2"/><path d="M237.8 82h4.4"/>
+              </g>
+
+              <!-- the bolt: shot by the key -->
+              <g class="lock__bolt">
+                <rect x="114" y="46" width="56" height="24" rx="1.5" fill="url(#lkBolt)"/>
+                <rect x="164" y="46" width="6" height="24" fill="rgba(255,247,220,.14)"/>
+                <path d="M114 58 H170" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+              </g>
+
+              <!-- the case of the rim lock, on the face of the door -->
+              <rect x="62" y="25" width="100" height="142" rx="4" fill="rgba(0,0,0,.5)"/>
+              <rect x="62" y="24" width="100" height="142" rx="4" fill="url(#lkPlate)"/>
+              <rect x="62.5" y="24.5" width="99" height="141" rx="4" fill="none" stroke="rgba(0,0,0,.45)"/>
+              <rect x="69" y="31" width="86" height="128" rx="2" fill="none" stroke="rgba(255,247,220,.1)"/>
+              <g fill="#63501c" stroke="rgba(0,0,0,.5)" stroke-width="1">
+                <circle cx="76" cy="38" r="3.4"/><path d="M73.6 38h4.8"/>
+                <circle cx="148" cy="38" r="3.4"/><path d="M145.6 38h4.8"/>
+                <circle cx="76" cy="152" r="3.4"/><path d="M73.6 152h4.8"/>
+                <circle cx="148" cy="152" r="3.4"/><path d="M145.6 152h4.8"/>
+              </g>
+
+              <!-- the arc a century of turning has worn into the plate -->
+              <path d="M112 144 A44 44 0 0 0 155.3 107.6" fill="none"
+                    stroke="rgba(0,0,0,.34)" stroke-width="1.8" stroke-linecap="round"
+                    stroke-dasharray="1 6"/>
+              <path class="lock__arcfill" d="M112 144 A44 44 0 0 0 155.3 107.6" fill="none"
+                    stroke="rgba(240,216,148,.85)" stroke-width="1.8" stroke-linecap="round"/>
+              <path class="lock__guide" d="M155.3 99.6 l4.6 8 h-9.2 z" fill="rgba(240,216,148,.85)"/>
+
+              <!-- the keyhole -->
+              <circle cx="112" cy="100" r="12" fill="#0c0507"/>
+              <path d="M103.5 106 L99 132 Q112 138 125 132 L120.5 106 Z" fill="#0c0507"/>
+              <circle cx="112" cy="100" r="12" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/>
+              <path d="M102 96 A12 12 0 0 1 117 90" fill="none" stroke="rgba(255,247,220,.22)" stroke-width="1.2"/>
+
+              <!-- the key -->
+              <g class="lock__key">
+                <g class="lock__keyart">
+                  <rect x="107.5" y="96" width="9" height="56" rx="1.5" fill="url(#lkKey)"/>
+                  <rect x="101" y="120" width="22" height="7" rx="2" fill="url(#lkKey)"/>
+                  <circle cx="112" cy="160" r="14" fill="none" stroke="url(#lkKey)" stroke-width="6.5"/>
+                  <circle cx="112" cy="160" r="17.4" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
+                  <circle cx="112" cy="160" r="10.6" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
+                  <circle cx="105.5" cy="154" r="2.6" fill="rgba(255,250,228,.5)"/>
+                  <circle cx="111" cy="108" r="1.7" fill="rgba(255,250,228,.42)"/>
+                </g>
+              </g>
+
+              <ellipse class="lock__flare" cx="150" cy="100" rx="140" ry="85" fill="url(#lkFlare)"/>
+            </svg>
+
+            <button class="lock__grip" id="lockGrip" type="button" role="slider"
+                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Locked"
+                    aria-label="Turn the key to confirm you are 18 or over and enter the House"></button>
           </div>
+          <p class="lock__say" id="lockSay">Turn the key &mdash; I am 18 or over</p>
         </div>
 
         <p class="gate__fine">Nothing is recorded. Your answer is held in this browser tab alone, and forgotten when you close it.</p>
@@ -1793,10 +1880,10 @@ html.gated .gate{ display:flex; }
         knock = document.getElementById('gateKnock'),
         heard = document.getElementById('gateHeard'),
         leave = document.getElementById('gateLeave'),
-        bolt  = document.getElementById('bolt'),
-        track = document.getElementById('boltTrack'),
-        knob  = document.getElementById('boltKnob'),
-        texts = [document.getElementById('boltText'), document.getElementById('boltTextGold')];
+        lock  = document.getElementById('lock'),
+        plate = document.getElementById('lockPlate'),
+        grip  = document.getElementById('lockGrip'),
+        say   = document.getElementById('lockSay');
 
     // The House is out of reach while the door is shut.
     var behind = [].slice.call(document.body.children).filter(function(el){ return el !== gate; });
@@ -1813,85 +1900,101 @@ html.gated .gate{ display:flex; }
       setTimeout(function(){
         gate.classList.add('is-heard');
         heard.removeAttribute('inert');
-        measure();
-        knob.focus({ preventScroll:true });
+        centre();
+        grip.focus({ preventScroll:true });
       }, 430);
       setTimeout(function(){
         var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-        bolt.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block:'nearest' });
+        lock.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block:'nearest' });
       }, 1250);
     }
     knock.addEventListener('click', doKnock);
 
-    /* --- the bolt --- */
-    var max = 0, pos = 0, dragging = false, moved = false, drawn = false, startX = 0, startPos = 0;
+    /* --- the lock: turn the key, throw the bolt --- */
+    var TURN = 80,                       // degrees of throw, matching the CSS
+        p = 0, turning = false, moved = false, turned = false,
+        cx = 0, cy = 0, deadR = 0;
 
-    function measure(){
-      max = Math.max(1, track.clientWidth - 10 - knob.offsetWidth);
-      setPos(drawn ? max : pos);
+    function centre(){                   // where the keyhole sits on screen
+      var r = plate.getBoundingClientRect();
+      cx = r.left + r.width  * (112/300);
+      cy = r.top  + r.height * (100/196);
+      deadR = r.width * 0.11;            // too near the pin to read an angle
     }
-    function setPos(px){
-      pos = Math.max(0, Math.min(max, px));
-      var pct = (pos / max) * 100;
-      knob.style.setProperty('--x', pos + 'px');
-      bolt.style.setProperty('--p', pct + '%');
-      knob.setAttribute('aria-valuenow', Math.round(pct));
+    function setP(v){
+      p = Math.max(0, Math.min(1, v));
+      lock.style.setProperty('--p', p);
+      grip.setAttribute('aria-valuenow', Math.round(p * 100));
     }
-    function draw(){
-      if(drawn) return;
-      drawn = true;
-      setPos(max);
-      bolt.classList.add('is-drawn');
-      knob.setAttribute('aria-valuetext', 'Bolt drawn — the door is open');
-      texts.forEach(function(t){ if(t) t.textContent = 'The door is open'; });
+    function angleAt(e){
+      var dx = e.clientX - cx, dy = e.clientY - cy;
+      if(Math.sqrt(dx*dx + dy*dy) < deadR) return null;
+      var t = 90 - Math.atan2(dy, dx) * 180 / Math.PI;   // 0 with the key hanging down
+      if(t < -40 || t > TURN + 55) return null;          // the hand has left the arc
+      return Math.max(0, Math.min(TURN, t));
+    }
+    function unlock(){
+      if(turned) return;
+      turned = true;
+      setP(1);
+      lock.classList.add('is-turned');
+      grip.setAttribute('aria-valuetext', 'Unlocked \u2014 the door is open');
+      if(say) say.textContent = 'The door is open';
       try{ sessionStorage.setItem(KEY, '1'); }catch(e){}
 
-      setTimeout(function(){ gate.classList.add('is-open'); unbar(); }, 470);
+      gate.classList.add('is-knocking');                 // the bolt lands with a jolt
+      setTimeout(function(){ gate.classList.remove('is-knocking'); }, 520);
+      setTimeout(function(){ gate.classList.add('is-open'); unbar(); }, 640);
       setTimeout(function(){
         doc.classList.remove('gated');
         doc.classList.add('gate-cleared');
         if(gate.parentNode) gate.parentNode.removeChild(gate);
         var home = document.querySelector('.nav .monogram');
         if(home && home.focus) home.focus({ preventScroll:true });
-      }, 2150);
+      }, 2300);
     }
 
-    knob.addEventListener('pointerdown', function(e){
-      if(drawn) return;
-      dragging = true; moved = false; startX = e.clientX; startPos = pos;
-      bolt.classList.add('is-dragging');
-      if(knob.setPointerCapture){ try{ knob.setPointerCapture(e.pointerId); }catch(err){} }
+    grip.addEventListener('pointerdown', function(e){
+      if(turned) return;
+      centre();
+      turning = true; moved = false;
+      lock.classList.add('is-turning', 'is-touched');
+      if(grip.setPointerCapture){ try{ grip.setPointerCapture(e.pointerId); }catch(err){} }
+      e.preventDefault();
     });
-    knob.addEventListener('pointermove', function(e){
-      if(!dragging) return;
-      var dx = e.clientX - startX;
-      if(Math.abs(dx) > 3) moved = true;
-      setPos(startPos + dx);
+    grip.addEventListener('pointermove', function(e){
+      if(!turning) return;
+      var t = angleAt(e);
+      if(t === null) return;
+      t = Math.min(t, p * TURN + 26);    // no flick shortcuts: the key turns with the hand
+      if(t > 2) moved = true;
+      setP(t / TURN);
     });
-    function endDrag(){
-      if(!dragging) return;
-      dragging = false;
-      bolt.classList.remove('is-dragging');
-      if(pos >= max * 0.86){ draw(); return; }
-      if(!moved){                                   // a tap: show it wants to travel
-        setPos(Math.min(max, 24));
-        setTimeout(function(){ if(!drawn) setPos(0); }, 280);
-      } else { setPos(0); }
+    function endTurn(){
+      if(!turning) return;
+      turning = false;
+      lock.classList.remove('is-turning');
+      if(p >= 0.88){ unlock(); return; }
+      if(!moved){                        // a tap: show which way it wants to go
+        setP(0.17);
+        setTimeout(function(){ if(!turned) setP(0); }, 300);
+      } else { setP(0); }
     }
-    knob.addEventListener('pointerup', endDrag);
-    knob.addEventListener('pointercancel', endDrag);
+    grip.addEventListener('pointerup', endTurn);
+    grip.addEventListener('pointercancel', endTurn);
 
-    knob.addEventListener('keydown', function(e){
-      if(drawn) return;
-      var k = e.key, step = max / 7;
-      if(k === 'ArrowRight' || k === 'ArrowUp'){ setPos(pos + step); e.preventDefault(); }
-      else if(k === 'ArrowLeft' || k === 'ArrowDown'){ setPos(pos - step); e.preventDefault(); }
-      else if(k === 'Home'){ setPos(0); e.preventDefault(); }
-      else if(k === 'End' || k === 'Enter' || k === ' ' || k === 'Spacebar'){ draw(); e.preventDefault(); return; }
-      if(pos >= max) draw();
+    grip.addEventListener('keydown', function(e){
+      if(turned) return;
+      var k = e.key, step = 1/6;
+      lock.classList.add('is-touched');
+      if(k === 'ArrowRight' || k === 'ArrowUp'){ setP(p + step); e.preventDefault(); }
+      else if(k === 'ArrowLeft' || k === 'ArrowDown'){ setP(p - step); e.preventDefault(); }
+      else if(k === 'Home'){ setP(0); e.preventDefault(); }
+      else if(k === 'End' || k === 'Enter' || k === ' ' || k === 'Spacebar'){ unlock(); e.preventDefault(); return; }
+      if(p > 0.995) unlock();          // six steps of 1/6 land just shy of 1
     });
     // Assistive tech activates the slider with a synthetic click (detail 0).
-    knob.addEventListener('click', function(e){ if(e.detail === 0) draw(); });
+    grip.addEventListener('click', function(e){ if(e.detail === 0) unlock(); });
 
     /* --- turning away --- */
     leave.addEventListener('click', function(){
@@ -1910,9 +2013,9 @@ html.gated .gate{ display:flex; }
       else if(!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
     });
 
-    window.addEventListener('resize', measure, { passive:true });
-    measure();
-    setTimeout(measure, 300);                       // after the fonts settle
+    window.addEventListener('resize', centre, { passive:true });
+    centre();
+    setTimeout(centre, 300);                        // after the fonts settle
     setTimeout(function(){ gate.focus({ preventScroll:true }); }, 80);
   })();
 
