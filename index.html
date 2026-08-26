@@ -1119,30 +1119,42 @@ html.gated .gate{ display:flex; }
 /* ---- the lock: a key you turn ---- */
 .lock{ --p:0; width:min(400px,100%); display:flex; flex-direction:column; align-items:center; gap:12px;
   -webkit-user-select:none; user-select:none; }
-.lock__plate{ position:relative; width:100%; aspect-ratio:300/196; touch-action:none; }
+.lock__plate{ position:relative; width:100%; aspect-ratio:300/200; touch-action:none; }
 .lock__plate svg{ position:absolute; inset:0; width:100%; height:100%; display:block;
-  filter:drop-shadow(0 14px 28px rgba(0,0,0,.6)); }
+  filter:drop-shadow(0 16px 30px rgba(0,0,0,.62)); }
 
 .lock__bolt{ transform:translateX(calc(var(--p) * 50px));
   transition:transform .5s cubic-bezier(.16,1,.3,1); }
 .lock__key{ transform-box:view-box; transform-origin:83px 100px;
   transform:rotate(calc(var(--p) * -80deg));
   transition:transform .5s cubic-bezier(.16,1,.3,1); }
-.lock__keyart{ filter:drop-shadow(0 3px 6px rgba(0,0,0,.66)); }
-/* the gold trail the bow leaves along the engraved arc (arc length 61.4) */
-.lock__arcfill{ stroke-dasharray:62; stroke-dashoffset:calc(62px - var(--p) * 62px);
+.lock__keyart{ filter:drop-shadow(0 3px 5px rgba(0,0,0,.6)); }
+.lock__glow{ opacity:.22; animation:keyglow 3.1s ease-in-out infinite; transition:opacity .6s ease; }
+/* the gold trail the bow leaves along the engraved arc (arc length 57.2) */
+.lock__arcfill{ stroke-dasharray:58; stroke-dashoffset:calc(58px - var(--p) * 58px);
   transition:stroke-dashoffset .5s cubic-bezier(.16,1,.3,1); }
 .lock__flare{ opacity:0; transition:opacity .8s ease; }
 .lock.is-turned .lock__flare{ opacity:1; }
 .lock.is-turning .lock__bolt,.lock.is-turning .lock__key,.lock.is-turning .lock__arcfill{ transition:none; }
 
-/* which way it goes — breathes until the key is touched */
-.lock__guide{ animation:lockhint 3.2s ease-in-out infinite; }
-.lock.is-touched .lock__guide{ animation:none; opacity:.26; }
-@keyframes lockhint{ 0%,100%{ opacity:.3 } 50%{ opacity:.78 } }
+/* Turning is the one thing the visitor has to work out, so the key shows them:
+   it takes a half-turn and settles back, over a glow that breathes. Both stop
+   the moment a hand is on it — an affordance that keeps insisting is a nag. */
+.lock__nudge{ transform-box:view-box; transform-origin:83px 100px;
+  animation:keynudge 4.4s ease-in-out infinite; }
+@keyframes keynudge{
+  0%,58%,100%{ transform:rotate(0) }
+  67%{ transform:rotate(-7deg) }  76%{ transform:rotate(-2.5deg) }
+  85%{ transform:rotate(-4.5deg) }
+}
+@keyframes keyglow{ 0%,100%{ opacity:.18 } 50%{ opacity:.76 } }
+.lock__plate:hover .lock__glow{ animation-duration:1.7s; }
+.lock.is-touched .lock__nudge{ animation:none; }
+.lock.is-touched .lock__glow{ animation:none; opacity:.3; }
+.lock.is-turned .lock__glow{ opacity:.92; }
 
 /* the hand-hold, over the bow of the key at rest */
-.lock__grip{ position:absolute; left:27.67%; top:81.63%; width:19%; aspect-ratio:1;
+.lock__grip{ position:absolute; left:27.67%; top:81%; width:18%; aspect-ratio:1;
   transform:translate(-50%,-50%); padding:0; border:0; border-radius:50%;
   background:none; cursor:grab; }
 .lock.is-turning .lock__grip{ cursor:grabbing; }
@@ -1167,7 +1179,8 @@ html.gated .gate{ display:flex; }
   .gate,.gate__leaf,.gate__stage,.gate__glow,
   .lock__key,.lock__bolt,.lock__arcfill{ transition-duration:.01ms !important; }
   .gate__glow{ animation:none; }
-  .lock__guide{ animation:none; opacity:.4; }
+  .lock__nudge{ animation:none; }
+  .lock__glow{ animation:none; opacity:.6; }
   .gate__stage > *{ animation:none; }
   .gate.is-jolt .gate__leaf{ animation:none; }
 }
@@ -1196,87 +1209,167 @@ html.gated .gate{ display:flex; }
 
     <div class="lock" id="lock">
       <div class="lock__plate" id="lockPlate">
-            <svg viewBox="0 0 300 196" aria-hidden="true" focusable="false">
+            <svg viewBox="0 0 300 200" aria-hidden="true" focusable="false">
               <defs>
-                <linearGradient id="lkPlate" x1="0" y1="0" x2=".4" y2="1">
-                  <stop offset="0%" stop-color="#bfa568"/><stop offset="26%" stop-color="#8c7126"/>
-                  <stop offset="55%" stop-color="#544012"/><stop offset="78%" stop-color="#7c6323"/>
-                  <stop offset="100%" stop-color="#2a1f08"/>
+                <linearGradient id="lkField" x1="0" y1="0" x2=".38" y2="1">
+                  <stop offset="0%" stop-color="#dccb96"/><stop offset="9%" stop-color="#bb9c4e"/>
+                  <stop offset="26%" stop-color="#917626"/><stop offset="44%" stop-color="#6a5519"/>
+                  <stop offset="58%" stop-color="#513f12"/><stop offset="72%" stop-color="#7a6224"/>
+                  <stop offset="88%" stop-color="#a5873c"/><stop offset="100%" stop-color="#31250b"/>
                 </linearGradient>
-                <linearGradient id="lkBolt" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#e2cd95"/><stop offset="32%" stop-color="#b08f31"/>
-                  <stop offset="68%" stop-color="#6a521a"/><stop offset="100%" stop-color="#a98a30"/>
+                <!-- one light source, top-left: this stroke is every bevel on the plate -->
+                <linearGradient id="lkBevel" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#fbf0cd"/><stop offset="30%" stop-color="#d6b76b"/>
+                  <stop offset="55%" stop-color="#7d6524"/><stop offset="100%" stop-color="#241a06"/>
                 </linearGradient>
-                <linearGradient id="lkKey" x1=".2" y1="0" x2=".8" y2="1">
-                  <stop offset="0%" stop-color="#eeddaa"/><stop offset="38%" stop-color="#bb9a3a"/>
-                  <stop offset="72%" stop-color="#775c1c"/><stop offset="100%" stop-color="#4a380c"/>
+                <radialGradient id="lkCyl" cx="38%" cy="32%" r="72%">
+                  <stop offset="0%" stop-color="#d9c07a"/><stop offset="40%" stop-color="#8f7430"/>
+                  <stop offset="75%" stop-color="#5a4718"/><stop offset="100%" stop-color="#2e2309"/>
+                </radialGradient>
+                <linearGradient id="lkKeyG" x1=".15" y1="0" x2=".85" y2="1">
+                  <stop offset="0%" stop-color="#fdf3d2"/><stop offset="30%" stop-color="#d9b95e"/>
+                  <stop offset="60%" stop-color="#9a7c2c"/><stop offset="82%" stop-color="#6b5419"/>
+                  <stop offset="100%" stop-color="#3d2f0d"/>
+                </linearGradient>
+                <linearGradient id="lkBoltG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#f2e5bb"/><stop offset="22%" stop-color="#cdae5c"/>
+                  <stop offset="55%" stop-color="#7a6222"/><stop offset="78%" stop-color="#a2843a"/>
+                  <stop offset="100%" stop-color="#4b3a12"/>
+                </linearGradient>
+                <linearGradient id="lkSpec" x1="0" y1="0" x2="1" y2=".6">
+                  <stop offset="0%" stop-color="#fff8e2" stop-opacity="0"/>
+                  <stop offset="34%" stop-color="#fff8e2" stop-opacity=".17"/>
+                  <stop offset="46%" stop-color="#fff8e2" stop-opacity=".04"/>
+                  <stop offset="100%" stop-color="#fff8e2" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="lkMort" x1="0" y1="0" x2=".3" y2="1">
+                  <stop offset="0%" stop-color="#000"/><stop offset="55%" stop-color="#0d0508"/>
+                  <stop offset="100%" stop-color="#1c0d10"/>
                 </linearGradient>
                 <radialGradient id="lkFlare" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#ffeec2" stop-opacity=".4"/>
-                  <stop offset="46%" stop-color="#e0b45c" stop-opacity=".15"/>
+                  <stop offset="0%" stop-color="#ffeec2" stop-opacity=".42"/>
+                  <stop offset="46%" stop-color="#e0b45c" stop-opacity=".16"/>
                   <stop offset="100%" stop-color="#c9a227" stop-opacity="0"/>
                 </radialGradient>
+                <!-- machined field, the way a watch dial is turned -->
+                <pattern id="lkGuil" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+                  <path d="M0 0 V8" stroke="rgba(0,0,0,.1)" stroke-width=".6"/>
+                  <path d="M4 0 V8" stroke="rgba(255,248,224,.05)" stroke-width=".5"/>
+                </pattern>
+                <filter id="lkGlow" x="-70%" y="-70%" width="240%" height="240%">
+                  <feGaussianBlur stdDeviation="5.5"/>
+                </filter>
+                <clipPath id="lkCaseClip"><path d="M43 20 H123 L135 32 V160 L123 172 H43 L31 160 V32 Z"/></clipPath>
               </defs>
 
               <!-- the keeper, on the other leaf -->
-              <rect x="167" y="25" width="52" height="68" rx="3" fill="rgba(0,0,0,.5)"/>
-              <rect x="167" y="24" width="52" height="68" rx="3" fill="url(#lkPlate)"/>
-              <rect x="167" y="40" width="36" height="36" fill="#0c0507"/>
-              <rect x="167" y="40" width="36" height="2.5" fill="rgba(0,0,0,.75)"/>
-              <rect x="200" y="40" width="3" height="36" fill="rgba(140,112,40,.35)"/>
-              <rect x="167.5" y="24.5" width="51" height="67" rx="3" fill="none" stroke="rgba(0,0,0,.42)"/>
-              <g fill="#63501c" stroke="rgba(0,0,0,.5)" stroke-width="1">
-                <circle cx="211" cy="34" r="3.2"/><path d="M208.8 34h4.4"/>
-                <circle cx="211" cy="82" r="3.2"/><path d="M208.8 82h4.4"/>
-              </g>
+              <path d="M175 24 H211 L219 32 V84 L211 92 H175 L167 84 V32 Z" transform="translate(0,1.4)" fill="rgba(0,0,0,.45)"/>
+              <path d="M175 24 H211 L219 32 V84 L211 92 H175 L167 84 V32 Z" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width="2.2"/>
+              <path d="M175 24 H211 L219 32 V84 L211 92 H175 L167 84 V32 Z" fill="none" stroke="rgba(0,0,0,.5)" stroke-width=".9"/>
+              <path d="M167 42 H193 L197 46 V70 L193 74 H167 Z" fill="url(#lkMort)"/>
+              <path d="M167 42 H193 L197 46 V70 L193 74 H167 Z" fill="none" stroke="rgba(0,0,0,.7)" stroke-width="1.6"/>
+              <path d="M167 43.4 H192.4 L195.6 46.6" fill="none" stroke="rgba(255,248,224,.16)" stroke-width="1"/>
+                <g>
+                  <circle cx="211" cy="34.7" r="4.1" fill="rgba(0,0,0,.45)"/>
+                  <circle cx="211" cy="34" r="3.4" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width=".9"/>
+                  <path d="M208.7 34 h4.6" stroke="rgba(0,0,0,.6)" stroke-width="1.3"/>
+                  <path d="M208.7 35.1 h4.6" stroke="rgba(255,250,228,.2)" stroke-width=".7"/>
+                </g>
+                <g>
+                  <circle cx="211" cy="82.7" r="4.1" fill="rgba(0,0,0,.45)"/>
+                  <circle cx="211" cy="82" r="3.4" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width=".9"/>
+                  <path d="M208.7 82 h4.6" stroke="rgba(0,0,0,.6)" stroke-width="1.3"/>
+                  <path d="M208.7 83.1 h4.6" stroke="rgba(255,250,228,.2)" stroke-width=".7"/>
+                </g>
 
-              <!-- the bolt: shot by the key -->
+              <!-- the bolt -->
               <g class="lock__bolt">
-                <rect x="85" y="46" width="56" height="24" rx="1.5" fill="url(#lkBolt)"/>
-                <rect x="135" y="46" width="6" height="24" fill="rgba(255,247,220,.14)"/>
-                <path d="M85 58 H141" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+                <path d="M85 46 H136 L141 51 V65 L136 70 H85 Z" transform="translate(0,1.6)" fill="rgba(0,0,0,.5)"/>
+                <path d="M85 46 H136 L141 51 V65 L136 70 H85 Z" fill="url(#lkBoltG)"/>
+                <path d="M85 47.4 H135.4 L139.6 51.6" fill="none" stroke="rgba(255,250,228,.36)" stroke-width="1.2"/>
+                <path d="M85 68.6 H135.4 L139.6 64.4" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="1.2"/>
+                <path d="M128 46 V70" stroke="rgba(0,0,0,.24)" stroke-width="1"/>
+                <path d="M130 46 V70" stroke="rgba(255,250,228,.16)" stroke-width=".8"/>
               </g>
 
-              <!-- the case of the rim lock, on the face of the door -->
-              <rect x="33" y="25" width="100" height="142" rx="4" fill="rgba(0,0,0,.5)"/>
-              <rect x="33" y="24" width="100" height="142" rx="4" fill="url(#lkPlate)"/>
-              <rect x="33.5" y="24.5" width="99" height="141" rx="4" fill="none" stroke="rgba(0,0,0,.45)"/>
-              <rect x="40" y="31" width="86" height="128" rx="2" fill="none" stroke="rgba(255,247,220,.1)"/>
-              <g fill="#63501c" stroke="rgba(0,0,0,.5)" stroke-width="1">
-                <circle cx="47" cy="38" r="3.4"/><path d="M44.6 38h4.8"/>
-                <circle cx="119" cy="38" r="3.4"/><path d="M116.6 38h4.8"/>
-                <circle cx="47" cy="152" r="3.4"/><path d="M44.6 152h4.8"/>
-                <circle cx="119" cy="152" r="3.4"/><path d="M116.6 152h4.8"/>
+              <!-- the case, on the face of the door -->
+              <path d="M43 20 H123 L135 32 V160 L123 172 H43 L31 160 V32 Z" transform="translate(0,2)" fill="rgba(0,0,0,.5)"/>
+              <path d="M43 20 H123 L135 32 V160 L123 172 H43 L31 160 V32 Z" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width="3"/>
+              <g clip-path="url(#lkCaseClip)">
+                <rect x="0" y="0" width="300" height="200" fill="url(#lkGuil)"/>
+                <rect x="0" y="0" width="300" height="200" fill="url(#lkSpec)"/>
               </g>
+              <path d="M43 20 H123 L135 32 V160 L123 172 H43 L31 160 V32 Z" fill="none" stroke="rgba(0,0,0,.52)" stroke-width="1"/>
+              <!-- an incised line: dark cut, light lip below it -->
+              <path d="M52 29 H114 L126 41 V151 L114 163 H52 L40 151 V41 Z" fill="none" stroke="rgba(0,0,0,.42)" stroke-width="1.3"/>
+              <path d="M52 29 H114 L126 41 V151 L114 163 H52 L40 151 V41 Z" transform="translate(0,1.3)" fill="none" stroke="rgba(255,248,224,.15)" stroke-width=".9"/>
+              <!-- the door's own quilt, engraved into the plate -->
+              <path d="M83 39 L96 52 L83 65 L70 52 Z" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="1.2"/>
+              <path d="M83 40.3 L96 53.3 L83 66.3 L70 53.3 Z" fill="none" stroke="rgba(255,248,224,.14)" stroke-width=".8"/>
+              <circle cx="83" cy="52" r="1.7" fill="rgba(0,0,0,.42)"/>
+                <g>
+                  <circle cx="44" cy="33.7" r="4.7" fill="rgba(0,0,0,.45)"/>
+                  <circle cx="44" cy="33" r="4.0" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width=".9"/>
+                  <path d="M41.3 33 h5.4" stroke="rgba(0,0,0,.6)" stroke-width="1.3"/>
+                  <path d="M41.3 34.1 h5.4" stroke="rgba(255,250,228,.2)" stroke-width=".7"/>
+                </g>
+                <g>
+                  <circle cx="122" cy="33.7" r="4.7" fill="rgba(0,0,0,.45)"/>
+                  <circle cx="122" cy="33" r="4.0" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width=".9"/>
+                  <path d="M119.3 33 h5.4" stroke="rgba(0,0,0,.6)" stroke-width="1.3"/>
+                  <path d="M119.3 34.1 h5.4" stroke="rgba(255,250,228,.2)" stroke-width=".7"/>
+                </g>
+                <g>
+                  <circle cx="44" cy="159.7" r="4.7" fill="rgba(0,0,0,.45)"/>
+                  <circle cx="44" cy="159" r="4.0" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width=".9"/>
+                  <path d="M41.3 159 h5.4" stroke="rgba(0,0,0,.6)" stroke-width="1.3"/>
+                  <path d="M41.3 160.1 h5.4" stroke="rgba(255,250,228,.2)" stroke-width=".7"/>
+                </g>
+                <g>
+                  <circle cx="122" cy="159.7" r="4.7" fill="rgba(0,0,0,.45)"/>
+                  <circle cx="122" cy="159" r="4.0" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width=".9"/>
+                  <path d="M119.3 159 h5.4" stroke="rgba(0,0,0,.6)" stroke-width="1.3"/>
+                  <path d="M119.3 160.1 h5.4" stroke="rgba(255,250,228,.2)" stroke-width=".7"/>
+                </g>
 
               <!-- the arc a century of turning has worn into the plate -->
-              <path d="M83 144 A44 44 0 0 0 126.3 107.6" fill="none"
-                    stroke="rgba(0,0,0,.42)" stroke-width="1.8" stroke-linecap="round"
-                    stroke-dasharray="1 6"/>
-              <path class="lock__arcfill" d="M112 144 A44 44 0 0 0 155.3 107.6" fill="none"
-                    stroke="rgba(240,216,148,.85)" stroke-width="1.8" stroke-linecap="round"/>
-              <path class="lock__guide" d="M126.3 99.6 l4.6 8 h-9.2 z" fill="rgba(240,216,148,.85)"/>
+              <path d="M83 141 A41 41 0 0 0 123.4 107.1" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1.3"
+                    stroke-linecap="round" stroke-dasharray="1 6"/>
+              <path class="lock__arcfill" d="M83 141 A41 41 0 0 0 123.4 107.1" fill="none" stroke="rgba(240,216,148,.85)"
+                    stroke-width="1.8" stroke-linecap="round"/>
 
-              <!-- the keyhole -->
-              <circle cx="83" cy="100" r="12" fill="#0c0507"/>
-              <path d="M74.5 106 L70 132 Q83 138 96 132 L91.5 106 Z" fill="#0c0507"/>
-              <circle cx="83" cy="100" r="12" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/>
-              <path d="M73 96 A12 12 0 0 1 88 90" fill="none" stroke="rgba(255,247,220,.22)" stroke-width="1.2"/>
+              <!-- the cylinder rose: the key sits in a plug, not a hole -->
+              <circle cx="83" cy="102" r="25.6" fill="rgba(0,0,0,.45)"/>
+              <circle cx="83" cy="100" r="24" fill="url(#lkField)" stroke="url(#lkBevel)" stroke-width="2.4"/>
+              <circle cx="83" cy="100" r="17.5" fill="url(#lkCyl)" stroke="rgba(0,0,0,.5)" stroke-width="1.6"/>
 
-              <!-- the key -->
+              <!-- the key, and the plug it turns -->
               <g class="lock__key">
-                <g class="lock__keyart">
-                  <rect x="78.5" y="96" width="9" height="56" rx="1.5" fill="url(#lkKey)"/>
-                  <rect x="72" y="120" width="22" height="7" rx="2" fill="url(#lkKey)"/>
-                  <circle cx="83" cy="160" r="14" fill="none" stroke="url(#lkKey)" stroke-width="6.5"/>
-                  <circle cx="83" cy="160" r="17.4" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
-                  <circle cx="83" cy="160" r="10.6" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
-                  <circle cx="76.5" cy="154" r="2.6" fill="rgba(255,250,228,.5)"/>
-                  <circle cx="82" cy="108" r="1.7" fill="rgba(255,250,228,.42)"/>
+                <g class="lock__nudge">
+                  <!-- the plug turns with the key: the slot and the index mark give it away -->
+                  <circle cx="83" cy="100" r="14" fill="url(#lkCyl)"/>
+                  <circle cx="83" cy="100" r="11" fill="none" stroke="rgba(0,0,0,.34)" stroke-width=".8"/>
+                  <rect x="82.1" y="87.6" width="1.8" height="4.4" rx=".9" fill="rgba(0,0,0,.55)"/>
+                  <rect x="78.2" y="100" width="9.6" height="12.4" rx="1" fill="#1b100a"/>
+                  <circle class="lock__glow" cx="83" cy="162" r="17.6" fill="#ffe4a8" filter="url(#lkGlow)"/>
+                  <g class="lock__keyart">
+                    <path d="M78.9 97 H87.1 L85.5 152 H80.5 Z" fill="url(#lkKeyG)"/>
+                    <path d="M80.5 104 L81.3 148" stroke="rgba(255,250,228,.4)" stroke-width="1.1"/>
+                    <rect x="70" y="127" width="26" height="7" rx="2.4" fill="url(#lkKeyG)"/>
+                    <path d="M71.4 128.4 H94.6" stroke="rgba(255,250,228,.36)" stroke-width="1"/>
+                    <path d="M71.4 132.9 H94.6" stroke="rgba(0,0,0,.32)" stroke-width=".9"/>
+                    <circle cx="83" cy="162" r="15.4" fill="url(#lkKeyG)"/>
+                    <circle cx="83" cy="162" r="17.6" fill="none" stroke="rgba(0,0,0,.34)" stroke-width="1"/>
+                    <path d="M83 153.4 L91.6 162 L83 170.6 L74.4 162 Z" fill="#1b100a"/>
+                    <path d="M74.4 162 L83 153.4 L91.6 162" fill="none" stroke="rgba(0,0,0,.5)" stroke-width="1.1"/>
+                    <path d="M75.6 162.6 L83 155.2 L90.4 162.6" fill="none" stroke="rgba(255,250,228,.24)" stroke-width=".8"/>
+                    <path d="M71.5 153.2 A15.4 15.4 0 0 1 83 146.6" fill="none"
+                          stroke="rgba(255,250,228,.58)" stroke-width="1.6" stroke-linecap="round"/>
+                  </g>
                 </g>
               </g>
 
-              <ellipse class="lock__flare" cx="150" cy="100" rx="140" ry="85" fill="url(#lkFlare)"/>
+              <ellipse class="lock__flare" cx="150" cy="100" rx="140" ry="88" fill="url(#lkFlare)"/>
             </svg>
 
         <button class="lock__grip" id="lockGrip" type="button" role="slider"
@@ -1794,7 +1887,7 @@ html.gated .gate{ display:flex; }
     function centre(){                   // where the keyhole sits on screen
       var r = plate.getBoundingClientRect();
       cx = r.left + r.width  * (83/300);
-      cy = r.top  + r.height * (100/196);
+      cy = r.top  + r.height * (100/200);
       deadR = r.width * 0.11;            // too near the pin to read an angle
     }
     function setP(v){
